@@ -1,0 +1,18 @@
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+xcuserdata/
+
+# Local config (contains developer team ID)
+Local.xcconfig
+
+# macOS
+.DS_Store
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
