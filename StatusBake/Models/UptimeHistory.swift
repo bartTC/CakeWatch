@@ -30,7 +30,7 @@ struct UptimeAlert: Codable, Identifiable {
     let statusCode: Int
     let triggeredAt: Date?
 
-    var id: String { "\(alertId)-\(status)" }
+    var id: String { "\(alertId)-\(status)-\(triggeredAt?.timeIntervalSince1970 ?? 0)" }
 
     enum CodingKeys: String, CodingKey {
         case alertId = "id"
