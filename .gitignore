@@ -10,6 +10,9 @@ xcuserdata/
 # Local config (contains developer team ID)
 Local.xcconfig
 
+# Environment (contains Apple credentials)
+.env
+
 # macOS
 .DS_Store
 

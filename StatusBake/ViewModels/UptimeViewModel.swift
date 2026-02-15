@@ -9,6 +9,7 @@ final class UptimeViewModel {
     var detail: UptimeCheckDetail?
     var selectedDetails: [UptimeCheckDetail] = []
     var showDeleteConfirmation = false
+    var showCreateSheet = false
 
     // Batch operations
     var isBatchOperating = false
@@ -80,6 +81,16 @@ final class UptimeViewModel {
             self.error = error.localizedDescription
         }
         isLoadingStatistics = false
+    }
+
+    func createCheck(fields: [String: String]) async {
+        do {
+            let newId = try await api.createCheck(fields: fields)
+            await fetchChecks()
+            selectedChecks = [newId]
+        } catch {
+            self.error = error.localizedDescription
+        }
     }
 
     func updateField(id: String, fields: [String: String]) async {

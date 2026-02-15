@@ -46,4 +46,17 @@ struct UptimeCheckDetail: Codable, Identifiable {
     let userAgent: String?
     let statusCodes: [String]?
     let processing: Bool?
+    let includeHeader: Bool?
+    let useJar: Bool?
+    let basicUsername: String?
+    let basicPassword: String?
+    let customHeader: String?
+    let postBody: String?
+    let postRaw: String?
+    let finalEndpoint: String?
+    let dnsIps: [String]?
+    let dnsServer: String?
+    let statusCodesCsv: String?
+    let contactGroups: [String]?
+    let regions: [String]?
 }

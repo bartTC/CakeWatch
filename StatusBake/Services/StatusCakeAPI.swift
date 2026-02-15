@@ -64,6 +64,7 @@ final class StatusCakeAPI {
                 continue
             }
 
+            try checkStatus(data: data, http: http)
             return (data, http)
         }
 
@@ -72,7 +73,17 @@ final class StatusCakeAPI {
         guard let http = response as? HTTPURLResponse else {
             throw URLError(.badServerResponse)
         }
+        try checkStatus(data: data, http: http)
         return (data, http)
+    }
+
+    private func checkStatus(data: Data, http: HTTPURLResponse) throws {
+        guard !(200...299).contains(http.statusCode) else { return }
+        if http.statusCode == 401 || http.statusCode == 403 {
+            throw APIError.requestFailed(statusCode: http.statusCode, message: "Invalid or missing API key.")
+        }
+        let body = String(data: data, encoding: .utf8) ?? "Unknown error"
+        throw APIError.requestFailed(statusCode: http.statusCode, message: body)
     }
 
     func listChecks() async throws -> [UptimeCheckOverview] {
@@ -130,6 +141,27 @@ final class StatusCakeAPI {
     func getAlerts(id: String) async throws -> [UptimeAlert] {
         let (data, _) = try await perform(request(path: "/uptime/\(id)/alerts"))
         return try iso8601Decoder.decode(UptimeAlertsResponse.self, from: data).data
+    }
+
+    func createCheck(fields: [String: String]) async throws -> String {
+        var req = request(path: "/uptime", method: "POST")
+        req.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        var components = URLComponents()
+        components.queryItems = fields.map { URLQueryItem(name: $0.key, value: $0.value) }
+        req.httpBody = components.percentEncodedQuery?.data(using: .utf8)
+        let (data, http) = try await perform(req)
+        guard (200...299).contains(http.statusCode) else {
+            let body = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw APIError.requestFailed(statusCode: http.statusCode, message: body)
+        }
+        struct CreateResponse: Codable {
+            struct NewCheck: Codable {
+                let newId: String
+            }
+            let data: NewCheck
+        }
+        let decoded = try decoder.decode(CreateResponse.self, from: data)
+        return decoded.data.newId
     }
 
     func deleteCheck(id: String) async throws {

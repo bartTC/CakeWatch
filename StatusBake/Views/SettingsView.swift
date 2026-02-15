@@ -14,6 +14,10 @@ struct SettingsView: View {
                     SecureField("API Key", text: $apiKey)
                         .textFieldStyle(.roundedBorder)
 
+                    Link("Get your API key at StatusCake",
+                         destination: URL(string: "https://app.statuscake.com/User.php")!)
+                        .font(.callout)
+
                     HStack {
                         Button("Test Connection") {
                             isTesting = true

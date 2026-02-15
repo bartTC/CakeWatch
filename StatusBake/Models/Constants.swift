@@ -15,3 +15,5 @@ let checkRateOptions: [(value: Int, label: String)] = [
 let timeoutOptions = [5, 10, 15, 20, 30, 45, 60, 75]
 let triggerRateOptions = [0, 1, 2, 3, 5, 10, 15, 30, 60]
 let confirmationRange = 0...3
+
+let testTypeOptions = ["HTTP", "HEAD", "TCP", "DNS", "PING", "SMTP", "SSH"]

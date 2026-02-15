@@ -6,7 +6,7 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var filterText = ""
     @State private var sortOrder = [KeyPathComparator(\UptimeCheckOverview.name)]
-    @State private var selectedDetailTab = "details"
+    @State private var selectedDetailTab = "statistics"
     @State private var fetchDetailsTask: Task<Void, Never>?
 
     private var sortedChecks: [UptimeCheckOverview] {
@@ -52,12 +52,18 @@ struct ContentView: View {
                         }
                     }
                 }
-                .width(min: 70, ideal: 80)
+                .width(100)
             }
-            .searchable(text: $filterText, prompt: "Filter checks")
+            .searchable(text: $filterText, placement: .sidebar, prompt: "Filter checks")
             .onChange(of: filterText) { viewModel.selectedChecks.removeAll() }
-            .navigationSplitViewColumnWidth(min: 300, ideal: 600)
+            .navigationSplitViewColumnWidth(min: 300, ideal: 400)
             .toolbar {
+                ToolbarItem {
+                    Button(action: { viewModel.showCreateSheet = true }) {
+                        Label("New Check", systemImage: "plus")
+                    }
+                    .help("Create new check")
+                }
                 ToolbarItem {
                     Button(action: { Task { await viewModel.fetchChecks() } }) {
                         Label("Refresh", systemImage: "arrow.clockwise")
@@ -144,6 +150,14 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
+        }
+        .onChange(of: showSettings) {
+            if !showSettings { Task { await viewModel.fetchChecks() } }
+        }
+        .sheet(isPresented: $viewModel.showCreateSheet) {
+            CreateCheckView { fields in
+                await viewModel.createCheck(fields: fields)
+            }
         }
         .alert("Error", isPresented: Binding(
             get: { viewModel.error != nil },
