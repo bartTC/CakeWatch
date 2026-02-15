@@ -2,6 +2,8 @@
 
 A native macOS app for managing and monitoring your [StatusCake](https://www.statuscake.com/) uptime checks.
 
+![StatusBake Screenshot](./screenshot.png)
+
 ## Features
 
 - View all uptime checks with status, name, and uptime percentage
@@ -28,16 +30,3 @@ A native macOS app for managing and monitoring your [StatusCake](https://www.sta
 4. Build and run
 
 On first launch, you'll be prompted to enter your StatusCake API key in Settings.
-
-## Architecture
-
-The app follows an MVVM pattern:
-
-- **Models** — `UptimeCheck`, `UptimeHistory` (API response types)
-- **Views** — `ContentView`, `CheckDetailView`, `StatisticsView`, `BatchConfigView`, `SettingsView`
-- **ViewModels** — `UptimeViewModel` (state management and API orchestration)
-- **Services** — `StatusCakeAPI` (HTTP client with retry and rate limiting)
-
-## License
-
-MIT
