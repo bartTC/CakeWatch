@@ -66,6 +66,8 @@ struct SettingsView: View {
             }
             .padding()
         }
+        #if os(macOS)
         .frame(width: 500, height: 320)
+        #endif
     }
 }

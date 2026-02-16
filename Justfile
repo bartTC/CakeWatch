@@ -17,15 +17,45 @@ version:
 # Development
 # =============================================================================
 
-# Build the app (use --dev for faster incremental builds, --open to launch)
+# Build and run the app (--ios for simulator, default macOS; --dev for faster incremental builds)
 build *flags:
     #!/usr/bin/env bash
-    args="-scheme {{scheme}} -destination 'platform=macOS'"
-    if [[ "{{flags}}" == *"--dev"* ]]; then
-        args="$args -configuration Debug -derivedDataPath build/DerivedData -skipPackagePluginValidation -skipMacroValidation"
-    fi
-    eval xcodebuild build $args
-    if [[ "{{flags}}" == *"--open"* ]]; then
+    set -e
+    if [[ "{{flags}}" == *"--ios"* ]]; then
+        # Find a booted simulator or boot the first available iPhone
+        booted=$(xcrun simctl list devices booted -j | python3 -c "
+    import json,sys
+    data=json.load(sys.stdin)
+    for runtime,devs in data.get('devices',{}).items():
+        for d in devs:
+            if d['state']=='Booted' and 'iPhone' in d['name']:
+                print(d['udid']); sys.exit()
+    " 2>/dev/null || true)
+        if [[ -z "$booted" ]]; then
+            udid=$(xcrun simctl list devices available -j | python3 -c "
+    import json,sys
+    data=json.load(sys.stdin)
+    for runtime,devs in sorted(data.get('devices',{}).items(), reverse=True):
+        for d in devs:
+            if d['isAvailable'] and 'iPhone' in d['name']:
+                print(d['udid']); sys.exit()
+    ")
+            echo "Booting simulator $udid..."
+            xcrun simctl boot "$udid"
+            booted="$udid"
+        fi
+        open -a Simulator
+        xcodebuild build -scheme {{scheme}} -sdk iphonesimulator -destination "id=$booted"
+        # Install and launch on simulator
+        app_path=$(xcodebuild -scheme {{scheme}} -sdk iphonesimulator -destination "id=$booted" -showBuildSettings 2>/dev/null | grep -m1 ' BUILT_PRODUCTS_DIR' | awk '{print $3}')/{{scheme}}.app
+        xcrun simctl install "$booted" "$app_path"
+        xcrun simctl launch "$booted" elephanthouse.StatusBake
+    else
+        args="-scheme {{scheme}} -destination 'platform=macOS'"
+        if [[ "{{flags}}" == *"--dev"* ]]; then
+            args="$args -configuration Debug -derivedDataPath build/DerivedData -skipPackagePluginValidation -skipMacroValidation"
+        fi
+        eval xcodebuild build $args
         if [[ "{{flags}}" == *"--dev"* ]]; then
             app="build/DerivedData/Build/Products/Debug/{{scheme}}.app"
         else

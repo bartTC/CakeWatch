@@ -40,43 +40,12 @@ struct CheckDetailView: View {
                 .formStyle(.grouped)
             }
         }
-        .navigationTitle(detail.name)
         .task(id: detail.id) {
             isEditingName = false
             if selectedTab == "statistics" { onFetchStatistics?() }
         }
         .onChange(of: selectedTab) {
             if selectedTab == "statistics" { onFetchStatistics?() }
-        }
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Picker("Tab", selection: $selectedTab) {
-                    Text("Statistics").tag("statistics")
-                    Text("Details").tag("details")
-                }
-                .pickerStyle(.segmented)
-                .frame(width: 200)
-            }
-            ToolbarItemGroup(placement: .automatic) {
-                Button {
-                    NSWorkspace.shared.open(URL(string: "https://app.statuscake.com/UptimeStatus.php?tid=\(detail.id)")!)
-                } label: {
-                    Label("Open in StatusCake", systemImage: "safari")
-                }
-                .help("Open in StatusCake")
-                Button {
-                    onUpdate?("paused", detail.paused ? "false" : "true")
-                } label: {
-                    Label(detail.paused ? "Resume" : "Pause", systemImage: detail.paused ? "play.fill" : "pause.fill")
-                }
-                .help(detail.paused ? "Resume check" : "Pause check")
-                Button(role: .destructive) {
-                    onDelete?()
-                } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-                .help("Delete check")
-            }
         }
     }
 
@@ -93,9 +62,7 @@ struct CheckDetailView: View {
                             }
                             isEditingName = false
                         }
-                        .onExitCommand {
-                            isEditingName = false
-                        }
+                        .onEscapeKey { isEditingName = false }
                 } else {
                     HStack(spacing: 4) {
                         Text(detail.name)
@@ -328,7 +295,7 @@ struct CheckDetailView: View {
                         }
                         isEditing.wrappedValue = false
                     }
-                    .onExitCommand { isEditing.wrappedValue = false }
+                    .onEscapeKey { isEditing.wrappedValue = false }
             } else {
                 HStack(spacing: 4) {
                     Text(value.isEmpty ? "—" : value)
@@ -343,6 +310,17 @@ struct CheckDetailView: View {
                 }
             }
         }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func onEscapeKey(perform action: @escaping () -> Void) -> some View {
+        #if os(macOS)
+        self.onExitCommand(perform: action)
+        #else
+        self
+        #endif
     }
 }
 
