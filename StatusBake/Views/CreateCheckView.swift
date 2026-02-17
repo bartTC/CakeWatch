@@ -2,75 +2,59 @@ import SwiftUI
 
 struct CreateCheckView: View {
     var onCreate: (([String: String]) async -> Void)?
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) var dismiss
 
     // Required
-    @State private var name = ""
-    @State private var testType = "HTTP"
-    @State private var websiteUrl = ""
-    @State private var checkRate = 300
+    @State var name = ""
+    @State var testType = "HTTP"
+    @State var websiteUrl = ""
+    @State var checkRate = 300
 
     // Monitoring
-    @State private var timeout = 15
-    @State private var triggerRate = 0
-    @State private var confirmation = 2
-    @State private var paused = false
-    @State private var followRedirects = false
-    @State private var enableSslAlert = false
+    @State var timeout = 15
+    @State var triggerRate = 0
+    @State var confirmation = 2
+    @State var paused = false
+    @State var followRedirects = false
+    @State var enableSslAlert = false
 
     // Content matching
-    @State private var findString = ""
-    @State private var doNotFind = false
-    @State private var includeHeader = false
+    @State var findString = ""
+    @State var doNotFind = false
+    @State var includeHeader = false
 
     // Advanced
-    @State private var tags = ""
-    @State private var statusCodesCsv = ""
-    @State private var userAgent = ""
-    @State private var host = ""
-    @State private var port = ""
-    @State private var basicUsername = ""
-    @State private var basicPassword = ""
-    @State private var customHeader = ""
-    @State private var useJar = false
+    @State var tags = ""
+    @State var statusCodesCsv = ""
+    @State var userAgent = ""
+    @State var host = ""
+    @State var port = ""
+    @State var basicUsername = ""
+    @State var basicPassword = ""
+    @State var customHeader = ""
+    @State var useJar = false
 
     // DNS
-    @State private var dnsServer = ""
-    @State private var dnsIps = ""
+    @State var dnsServer = ""
+    @State var dnsIps = ""
 
-    @State private var isCreating = false
+    @State var isCreating = false
 
-    private var isValid: Bool {
+    var isValid: Bool {
         !name.isEmpty && !websiteUrl.isEmpty
     }
 
-    private var showContentMatching: Bool {
+    var showContentMatching: Bool {
         testType == "HTTP" || testType == "HEAD"
     }
 
-    var body: some View {
-        VStack(spacing: 0) {
-            Form {
-                requiredSection
-                monitoringSection
-                if showContentMatching { contentMatchingSection }
-                advancedSection
-                if testType == "DNS" { dnsSection }
-            }
-            .formStyle(.grouped)
-
-            Divider()
-            HStack {
-                Button("Cancel", role: .cancel) { dismiss() }
-                    .keyboardShortcut(.cancelAction)
-                Spacer()
-                Button("Create") { create() }
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(!isValid || isCreating)
-            }
-            .padding()
-        }
-        .frame(width: 500, height: 600)
+    @ViewBuilder
+    var formContent: some View {
+        requiredSection
+        monitoringSection
+        if showContentMatching { contentMatchingSection }
+        advancedSection
+        if testType == "DNS" { dnsSection }
     }
 
     @ViewBuilder
@@ -145,7 +129,7 @@ struct CreateCheckView: View {
         }
     }
 
-    private func create() {
+    func create() {
         isCreating = true
         var fields: [String: String] = [
             "name": name,

@@ -9,8 +9,10 @@ struct IOSContentView: View {
     @State private var selectedDetailTab = "statistics"
 
     private var filteredChecks: [UptimeCheckOverview] {
-        if filterText.isEmpty { return viewModel.checks }
-        return viewModel.checks.filter { $0.name.localizedCaseInsensitiveContains(filterText) }
+        let checks = if filterText.isEmpty { viewModel.checks } else {
+            viewModel.checks.filter { $0.name.localizedCaseInsensitiveContains(filterText) }
+        }
+        return checks.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     var body: some View {
@@ -39,6 +41,7 @@ struct IOSContentView: View {
                 }
             }
             .listStyle(.plain)
+            .refreshable { await viewModel.fetchChecks() }
             .searchable(text: $filterText, prompt: "Filter checks")
             .navigationTitle("StatusBake")
             .navigationBarTitleDisplayMode(.inline)
@@ -126,6 +129,12 @@ private struct IOSCheckDetailContainer: View {
                         Task { await viewModel.fetchStatistics(id: detail.id) }
                     }, selectedTab: $selectedDetailTab)
                     .frame(maxHeight: .infinity)
+                    .refreshable {
+                        await viewModel.fetchDetail(id: checkId)
+                        if selectedDetailTab == "statistics" {
+                            await viewModel.fetchStatistics(id: checkId)
+                        }
+                    }
                 }
                 .navigationTitle(detail.name)
                 .navigationBarTitleDisplayMode(.inline)

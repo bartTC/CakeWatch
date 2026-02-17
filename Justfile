@@ -17,11 +17,37 @@ version:
 # Development
 # =============================================================================
 
-# Build and run the app (--ios for simulator, default macOS; --dev for faster incremental builds)
+# Build and run the app (--ios for simulator, --device for physical iPhone, default macOS; --dev for faster incremental builds)
 build *flags:
     #!/usr/bin/env bash
     set -e
-    if [[ "{{flags}}" == *"--ios"* ]]; then
+    if [[ "{{flags}}" == *"--device"* ]]; then
+        # Build and run on a connected physical iPhone
+        tmpjson=$(mktemp /tmp/devices.XXXXXX.json)
+        xcrun devicectl list devices --json-output "$tmpjson" 2>/dev/null
+        device_id=$(python3 -c "
+    import json,sys
+    data=json.load(open('$tmpjson'))
+    for d in data.get('result',{}).get('devices',[]):
+        conn=d.get('connectionProperties',{})
+        if conn.get('transportType','')=='wired' and 'iPhone' in d.get('deviceProperties',{}).get('name',''):
+            print(d['identifier']); sys.exit()
+    for d in data.get('result',{}).get('devices',[]):
+        if 'iPhone' in d.get('deviceProperties',{}).get('name','') and d.get('visibilityClass','')=='default':
+            print(d['identifier']); sys.exit()
+    " 2>/dev/null)
+        rm -f "$tmpjson"
+        if [[ -z "$device_id" ]]; then
+            echo "No connected iPhone found. Connect via USB and trust the device."
+            exit 1
+        fi
+        echo "Building for device $device_id..."
+        xcodebuild build -scheme {{scheme}} -destination "generic/platform=iOS" -allowProvisioningUpdates
+        echo "Installing on device..."
+        app_path=$(xcodebuild -scheme {{scheme}} -destination "generic/platform=iOS" -showBuildSettings 2>/dev/null | grep -m1 ' BUILT_PRODUCTS_DIR' | awk '{print $3}')/{{scheme}}.app
+        xcrun devicectl device install app --device "$device_id" "$app_path"
+        xcrun devicectl device process launch --device "$device_id" elephanthouse.StatusBake
+    elif [[ "{{flags}}" == *"--ios"* ]]; then
         # Find a booted simulator or boot the first available iPhone
         booted=$(xcrun simctl list devices booted -j | python3 -c "
     import json,sys

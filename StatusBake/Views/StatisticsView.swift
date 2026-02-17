@@ -115,13 +115,6 @@ struct StatisticsView: View {
                     responseTimeChart
                     Divider()
                     alertTimeline
-                    Divider()
-                    HStack {
-                        Spacer()
-                        Link(destination: URL(string: "https://app.statuscake.com/UptimeStatus.php?tid=\(checkId)")!) {
-                            Label("View on StatusCake", systemImage: "safari")
-                        }
-                    }
                 }
                 .padding()
             }
