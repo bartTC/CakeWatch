@@ -42,6 +42,19 @@ struct StatisticsView: View {
         periods.filter { $0.status == "down" }
     }
 
+    private var groupedDowntimePeriods: [(section: String, periods: [UptimePeriod])] {
+        var groups: [(section: String, periods: [UptimePeriod])] = []
+        for period in downtimePeriods {
+            let section = timeSection(for: period.createdAt)
+            if groups.last?.section == section {
+                groups[groups.count - 1].periods.append(period)
+            } else {
+                groups.append((section: section, periods: [period]))
+            }
+        }
+        return groups
+    }
+
     private var totalDowntime: TimeInterval {
         downtimePeriods.compactMap { $0.duration.map { Double($0) / 1000.0 } }.reduce(0, +)
     }
@@ -118,77 +131,122 @@ struct StatisticsView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding()
         } else {
-            VStack(alignment: .leading, spacing: 0) {
-                // Current status
-                HStack(spacing: 10) {
-                    Circle()
-                        .fill(currentStatus == "down" ? .red : .green)
-                        .frame(width: 12, height: 12)
-                    Text("Currently \(currentStatus == "down" ? "Down" : "Up")")
-                        .font(.body.bold())
-                        .foregroundStyle(currentStatus == "down" ? .red : .green)
-                }
-                // Downtime periods
-                let maxDuration = downtimePeriods.compactMap(\.duration).max() ?? 1
-                ForEach(downtimePeriods) { period in
-                    HStack(spacing: 10) {
-                        Rectangle()
-                            .fill(.secondary.opacity(0.3))
-                            .frame(width: 2, height: 40)
-                            .padding(.leading, 5)
-                    }
-                    HStack(spacing: 10) {
-                        Circle()
-                            .fill(.red)
-                            .frame(width: 12, height: 12)
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 6) {
+            // Current status
+            HStack(spacing: 10) {
+                Circle()
+                    .fill(currentStatus == "down" ? .red : .green)
+                    .frame(width: 12, height: 12)
+                Text("Currently \(currentStatus == "down" ? "Down" : "Up")")
+                    .font(.body.bold())
+                    .foregroundStyle(currentStatus == "down" ? .red : .green)
+            }
+
+            let maxDuration = downtimePeriods.compactMap(\.duration).max() ?? 1
+            ForEach(Array(groupedDowntimePeriods.enumerated()), id: \.offset) { _, group in
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(group.section)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.secondary)
+                        .padding(.bottom, 6)
+                    ForEach(Array(group.periods.enumerated()), id: \.element.id) { index, period in
+                        if index > 0 {
+                            Rectangle()
+                                .fill(.secondary.opacity(0.3))
+                                .frame(width: 2, height: 20)
+                                .padding(.leading, 4)
+                        }
+                        HStack(spacing: 10) {
+                            Circle()
+                                .fill(.red)
+                                .frame(width: 10, height: 10)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 6) {
+                                    if let durationMs = period.duration {
+                                        Text("Down for \(formatDuration(Double(durationMs) / 1000.0))")
+                                            .font(.body)
+                                    } else {
+                                        Text("Down since \(period.createdAt, format: .dateTime)")
+                                            .font(.body)
+                                    }
+                                    Spacer()
+                                    dateLabel(for: period.createdAt)
+                                }
                                 if let durationMs = period.duration {
-                                    Text("Down for \(formatDuration(Double(durationMs) / 1000.0))")
-                                        .font(.body)
-                                } else {
-                                    Text("Down since \(period.createdAt, format: .dateTime)")
-                                        .font(.body)
+                                    GeometryReader { geo in
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .fill(.red.opacity(0.6))
+                                            .frame(width: max(geo.size.width * 0.5 * (Double(durationMs) / Double(maxDuration)), 4))
+                                    }
+                                    .frame(height: 6)
                                 }
-                                Spacer()
-                                Text(period.createdAt, format: .dateTime)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            // Severity bar
-                            if let durationMs = period.duration {
-                                GeometryReader { geo in
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(.red.opacity(0.6))
-                                        .frame(width: max(geo.size.width * 0.5 * (Double(durationMs) / Double(maxDuration)), 4))
-                                }
-                                .frame(height: 6)
                             }
                         }
+                        .padding(.vertical, 4)
                     }
                 }
-                if hasMorePeriods {
-                    HStack(spacing: 10) {
-                        Rectangle()
-                            .fill(.secondary.opacity(0.3))
-                            .frame(width: 2, height: 40)
-                            .padding(.leading, 5)
-                    }
-                    if isLoadingMorePeriods {
-                        ProgressView()
-                            .frame(maxWidth: .infinity)
-                    } else {
-                        Button("Load More") {
-                            onLoadMorePeriods?()
-                        }
+                .padding(12)
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(.secondary.opacity(0.3)))
+            }
+
+            if hasMorePeriods {
+                if isLoadingMorePeriods {
+                    ProgressView()
                         .frame(maxWidth: .infinity)
+                } else {
+                    Button("Load More") {
+                        onLoadMorePeriods?()
                     }
+                    .frame(maxWidth: .infinity)
                 }
             }
         }
     }
 
     // MARK: - Helpers
+
+    private func timeSection(for date: Date) -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        let startOfToday = calendar.startOfDay(for: now)
+        if date >= startOfToday {
+            return "Today"
+        } else if date >= calendar.date(byAdding: .day, value: -7, to: startOfToday)! {
+            return "Last 7 Days"
+        } else if date >= calendar.date(byAdding: .month, value: -1, to: startOfToday)! {
+            return "Last 30 Days"
+        } else {
+            return String(calendar.component(.year, from: date))
+        }
+    }
+
+    private static let absoluteDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        f.doesRelativeDateFormatting = false
+        return f
+    }()
+
+    private static let relativeDateFormatter: RelativeDateTimeFormatter = {
+        let f = RelativeDateTimeFormatter()
+        f.unitsStyle = .full
+        return f
+    }()
+
+    private func dateLabel(for date: Date) -> some View {
+        let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date())!
+        let isRecent = date >= thirtyDaysAgo
+        let absoluteString = Self.absoluteDateFormatter.string(from: date) + " " + (TimeZone.current.abbreviation() ?? "")
+
+        let displayString = isRecent
+            ? Self.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+            : absoluteString
+
+        return Text(displayString)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .help(isRecent ? absoluteString : "")
+    }
 
     private func formatDuration(_ interval: TimeInterval) -> String {
         let total = Int(interval)
