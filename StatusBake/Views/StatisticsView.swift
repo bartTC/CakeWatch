@@ -6,22 +6,12 @@ struct StatisticsView: View {
     let checkName: String
     let websiteUrl: String
     let history: [UptimeHistoryResult]
-    let alerts: [UptimeAlert]
+    let periods: [UptimePeriod]
+    let hasMorePeriods: Bool
+    let isLoadingMorePeriods: Bool
+    var onLoadMorePeriods: (() -> Void)?
     let isLoading: Bool
     var uptime: Double?
-
-    // MARK: - Helper Structs
-
-    struct DowntimeIncident: Identifiable {
-        let id: Int
-        let startDate: Date
-        let endDate: Date?
-        let uptimeBefore: TimeInterval?
-        var duration: TimeInterval? {
-            guard let end = endDate else { return nil }
-            return end.timeIntervalSince(startDate)
-        }
-    }
 
     // MARK: - Computed Properties
 
@@ -45,50 +35,21 @@ struct StatisticsView: View {
     }
 
     private var currentStatus: String? {
-        alerts.sorted { ($0.triggeredAt ?? .distantPast) > ($1.triggeredAt ?? .distantPast) }.first?.status
+        periods.first?.status
     }
 
-    private var downtimeIncidents: [DowntimeIncident] {
-        let chronological = alerts.sorted { ($0.triggeredAt ?? .distantPast) < ($1.triggeredAt ?? .distantPast) }
-        var incidents: [DowntimeIncident] = []
-        var downStart: Date?
-        var lastUpDate: Date?
-
-        for alert in chronological {
-            if alert.status == "down", let date = alert.triggeredAt {
-                downStart = date
-            } else if alert.status == "up", let start = downStart, let end = alert.triggeredAt {
-                incidents.append(DowntimeIncident(
-                    id: incidents.count,
-                    startDate: start,
-                    endDate: end,
-                    uptimeBefore: lastUpDate.map { start.timeIntervalSince($0) }
-                ))
-                lastUpDate = end
-                downStart = nil
-            } else if alert.status == "up", let date = alert.triggeredAt {
-                lastUpDate = date
-            }
-        }
-        if let start = downStart {
-            incidents.append(DowntimeIncident(
-                id: incidents.count,
-                startDate: start,
-                endDate: nil,
-                uptimeBefore: lastUpDate.map { start.timeIntervalSince($0) }
-            ))
-        }
-        return incidents.reversed()
+    private var downtimePeriods: [UptimePeriod] {
+        periods.filter { $0.status == "down" }
     }
 
     private var totalDowntime: TimeInterval {
-        downtimeIncidents.compactMap(\.duration).reduce(0, +)
+        downtimePeriods.compactMap { $0.duration.map { Double($0) / 1000.0 } }.reduce(0, +)
     }
 
     private var meanTimeToRecovery: TimeInterval? {
-        let resolved = downtimeIncidents.compactMap(\.duration)
-        guard !resolved.isEmpty else { return nil }
-        return resolved.reduce(0, +) / Double(resolved.count)
+        let durations = downtimePeriods.compactMap { $0.duration.map { Double($0) / 1000.0 } }
+        guard !durations.isEmpty else { return nil }
+        return durations.reduce(0, +) / Double(durations.count)
     }
 
     // MARK: - Body
@@ -114,7 +75,7 @@ struct StatisticsView: View {
                     Divider()
                     responseTimeChart
                     Divider()
-                    alertTimeline
+                    downtimeTimeline
                 }
                 .padding()
             }
@@ -146,13 +107,13 @@ struct StatisticsView: View {
         }
     }
 
-    // MARK: - Alert Timeline
+    // MARK: - Downtime Timeline
 
     @ViewBuilder
-    private var alertTimeline: some View {
+    private var downtimeTimeline: some View {
         Text("Downtime History").font(.headline)
-        if alerts.isEmpty {
-            Text("No alerts recorded.")
+        if downtimePeriods.isEmpty {
+            Text("No downtime recorded.")
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding()
@@ -167,9 +128,9 @@ struct StatisticsView: View {
                         .font(.body.bold())
                         .foregroundStyle(currentStatus == "down" ? .red : .green)
                 }
-                // Downtime incidents
-                let maxDuration = downtimeIncidents.compactMap(\.duration).max() ?? 1
-                ForEach(downtimeIncidents) { incident in
+                // Downtime periods
+                let maxDuration = downtimePeriods.compactMap(\.duration).max() ?? 1
+                ForEach(downtimePeriods) { period in
                     HStack(spacing: 10) {
                         Rectangle()
                             .fill(.secondary.opacity(0.3))
@@ -182,33 +143,45 @@ struct StatisticsView: View {
                             .frame(width: 12, height: 12)
                         VStack(alignment: .leading, spacing: 4) {
                             HStack(spacing: 6) {
-                                if let duration = incident.duration {
-                                    Text("Down for \(formatDuration(duration))")
+                                if let durationMs = period.duration {
+                                    Text("Down for \(formatDuration(Double(durationMs) / 1000.0))")
                                         .font(.body)
                                 } else {
-                                    Text("Down since \(incident.startDate, format: .dateTime)")
+                                    Text("Down since \(period.createdAt, format: .dateTime)")
                                         .font(.body)
                                 }
-                                if let uptimeBefore = incident.uptimeBefore {
-                                    Text("(after \(formatDuration(uptimeBefore)) of uptime)")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
                                 Spacer()
-                                Text(incident.startDate, format: .dateTime)
+                                Text(period.createdAt, format: .dateTime)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                             // Severity bar
-                            if let duration = incident.duration {
+                            if let durationMs = period.duration {
                                 GeometryReader { geo in
                                     RoundedRectangle(cornerRadius: 2)
                                         .fill(.red.opacity(0.6))
-                                        .frame(width: max(geo.size.width * 0.5 * (duration / maxDuration), 4))
+                                        .frame(width: max(geo.size.width * 0.5 * (Double(durationMs) / Double(maxDuration)), 4))
                                 }
                                 .frame(height: 6)
                             }
                         }
+                    }
+                }
+                if hasMorePeriods {
+                    HStack(spacing: 10) {
+                        Rectangle()
+                            .fill(.secondary.opacity(0.3))
+                            .frame(width: 2, height: 40)
+                            .padding(.leading, 5)
+                    }
+                    if isLoadingMorePeriods {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Button("Load More") {
+                            onLoadMorePeriods?()
+                        }
+                        .frame(maxWidth: .infinity)
                     }
                 }
             }

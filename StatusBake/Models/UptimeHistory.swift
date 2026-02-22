@@ -20,22 +20,27 @@ struct UptimeHistoryResult: Codable, Identifiable {
     }
 }
 
-struct UptimeAlertsResponse: Codable {
-    let data: [UptimeAlert]
+struct PaginationLinks: Codable {
+    let next: String?
 }
 
-struct UptimeAlert: Codable, Identifiable {
-    let alertId: String
-    let status: String
-    let statusCode: Int
-    let triggeredAt: Date?
+struct UptimePeriodsResponse: Codable {
+    let data: [UptimePeriod]
+    let links: PaginationLinks?
+}
 
-    var id: String { "\(alertId)-\(status)-\(triggeredAt?.timeIntervalSince1970 ?? 0)" }
+struct UptimePeriod: Codable, Identifiable {
+    let status: String
+    let createdAt: Date
+    let endedAt: Date?
+    let duration: Int?
+
+    var id: String { "\(createdAt.timeIntervalSince1970)-\(status)" }
 
     enum CodingKeys: String, CodingKey {
-        case alertId = "id"
         case status
-        case statusCode = "status_code"
-        case triggeredAt = "triggered_at"
+        case createdAt = "created_at"
+        case endedAt = "ended_at"
+        case duration
     }
 }

@@ -21,6 +21,7 @@ extension CreateCheckView {
             .padding()
         }
         .frame(width: 500, height: 600)
+        .onAppear { initializeAccountSelection() }
     }
 }
 #endif

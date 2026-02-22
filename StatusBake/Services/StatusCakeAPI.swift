@@ -23,11 +23,7 @@ final class StatusCakeAPI {
     }
     private var lastRequestTime: Date = .distantPast
 
-    private var apiKey: String {
-        UserDefaults.standard.string(forKey: "apiKey") ?? ""
-    }
-
-    private func request(path: String, method: String = "GET") -> URLRequest {
+    private func request(path: String, method: String = "GET", apiKey: String) -> URLRequest {
         var req = URLRequest(url: URL(string: baseURL + path)!)
         req.httpMethod = method
         req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
@@ -86,18 +82,18 @@ final class StatusCakeAPI {
         throw APIError.requestFailed(statusCode: http.statusCode, message: body)
     }
 
-    func listChecks() async throws -> [UptimeCheckOverview] {
-        let (data, _) = try await perform(request(path: "/uptime?limit=100"))
+    func listChecks(apiKey: String) async throws -> [UptimeCheckOverview] {
+        let (data, _) = try await perform(request(path: "/uptime?limit=100", apiKey: apiKey))
         return try decoder.decode(UptimeTestsResponse.self, from: data).data
     }
 
-    func getCheck(id: String) async throws -> UptimeCheckDetail {
-        let (data, _) = try await perform(request(path: "/uptime/\(id)"))
+    func getCheck(id: String, apiKey: String) async throws -> UptimeCheckDetail {
+        let (data, _) = try await perform(request(path: "/uptime/\(id)", apiKey: apiKey))
         return try decoder.decode(UptimeTestResponse.self, from: data).data
     }
 
-    func updateCheck(id: String, fields: [String: String]) async throws {
-        var req = request(path: "/uptime/\(id)", method: "PUT")
+    func updateCheck(id: String, fields: [String: String], apiKey: String) async throws {
+        var req = request(path: "/uptime/\(id)", method: "PUT", apiKey: apiKey)
         req.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         var components = URLComponents()
         components.queryItems = fields.map { URLQueryItem(name: $0.key, value: $0.value) }
@@ -133,18 +129,37 @@ final class StatusCakeAPI {
         return d
     }
 
-    func getHistory(id: String) async throws -> [UptimeHistoryResult] {
-        let (data, _) = try await perform(request(path: "/uptime/\(id)/history"))
+    func getHistory(id: String, apiKey: String) async throws -> [UptimeHistoryResult] {
+        let (data, _) = try await perform(request(path: "/uptime/\(id)/history?limit=100", apiKey: apiKey))
         return try iso8601Decoder.decode(UptimeHistoryResponse.self, from: data).data
     }
 
-    func getAlerts(id: String) async throws -> [UptimeAlert] {
-        let (data, _) = try await perform(request(path: "/uptime/\(id)/alerts"))
-        return try iso8601Decoder.decode(UptimeAlertsResponse.self, from: data).data
+    struct PeriodsPage {
+        let periods: [UptimePeriod]
+        let nextURL: String?
     }
 
-    func createCheck(fields: [String: String]) async throws -> String {
-        var req = request(path: "/uptime", method: "POST")
+    func getPeriods(id: String, apiKey: String) async throws -> PeriodsPage {
+        return try await fetchPeriodsPage(path: "/uptime/\(id)/periods?limit=100", apiKey: apiKey)
+    }
+
+    func getMorePeriods(nextURL: String, apiKey: String) async throws -> PeriodsPage {
+        guard let url = URL(string: nextURL),
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            return PeriodsPage(periods: [], nextURL: nil)
+        }
+        let path = components.path.replacingOccurrences(of: "/v1", with: "") + "?" + (components.query ?? "")
+        return try await fetchPeriodsPage(path: path, apiKey: apiKey)
+    }
+
+    private func fetchPeriodsPage(path: String, apiKey: String) async throws -> PeriodsPage {
+        let (data, _) = try await perform(request(path: path, apiKey: apiKey))
+        let response = try iso8601Decoder.decode(UptimePeriodsResponse.self, from: data)
+        return PeriodsPage(periods: response.data, nextURL: response.links?.next)
+    }
+
+    func createCheck(fields: [String: String], apiKey: String) async throws -> String {
+        var req = request(path: "/uptime", method: "POST", apiKey: apiKey)
         req.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         var components = URLComponents()
         components.queryItems = fields.map { URLQueryItem(name: $0.key, value: $0.value) }
@@ -164,8 +179,8 @@ final class StatusCakeAPI {
         return decoded.data.newId
     }
 
-    func deleteCheck(id: String) async throws {
-        let (data, http) = try await perform(request(path: "/uptime/\(id)", method: "DELETE"))
+    func deleteCheck(id: String, apiKey: String) async throws {
+        let (data, http) = try await perform(request(path: "/uptime/\(id)", method: "DELETE", apiKey: apiKey))
         guard http.statusCode == 204 else {
             let body = String(data: data, encoding: .utf8) ?? "Unknown error"
             throw APIError.requestFailed(statusCode: http.statusCode, message: body)

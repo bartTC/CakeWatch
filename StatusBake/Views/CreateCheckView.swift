@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct CreateCheckView: View {
-    var onCreate: (([String: String]) async -> Void)?
+    var accounts: [Account] = []
+    var onCreate: ((_ fields: [String: String], _ accountId: String) async -> Void)?
     @Environment(\.dismiss) var dismiss
+    @State var selectedAccountId = ""
 
     // Required
     @State var name = ""
@@ -48,8 +50,23 @@ struct CreateCheckView: View {
         testType == "HTTP" || testType == "HEAD"
     }
 
+    func initializeAccountSelection() {
+        if selectedAccountId.isEmpty, let first = accounts.first {
+            selectedAccountId = first.id
+        }
+    }
+
     @ViewBuilder
     var formContent: some View {
+        if accounts.count > 1 {
+            Section("Account") {
+                Picker("Account", selection: $selectedAccountId) {
+                    ForEach(accounts) { account in
+                        Text(account.name).tag(account.id)
+                    }
+                }
+            }
+        }
         requiredSection
         monitoringSection
         if showContentMatching { contentMatchingSection }
@@ -158,8 +175,9 @@ struct CreateCheckView: View {
         if !dnsServer.isEmpty { fields["dns_server"] = dnsServer }
         if !dnsIps.isEmpty { fields["dns_ips"] = dnsIps }
 
+        let accountId = selectedAccountId.isEmpty ? accounts.first?.id ?? "" : selectedAccountId
         Task {
-            await onCreate?(fields)
+            await onCreate?(fields, accountId)
             dismiss()
         }
     }

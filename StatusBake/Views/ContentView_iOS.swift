@@ -3,7 +3,6 @@ import SwiftUI
 #if os(iOS)
 struct IOSContentView: View {
     @State private var viewModel = UptimeViewModel()
-    @AppStorage("apiKey") private var apiKey = ""
     @State private var showSettings = false
     @State private var filterText = ""
     @State private var selectedDetailTab = "statistics"
@@ -70,14 +69,20 @@ struct IOSContentView: View {
             DeleteConfirmationSheet(viewModel: viewModel)
         }
         .sheet(isPresented: $showSettings) {
-            SettingsView()
+            SettingsView(onAccountsChanged: {
+                viewModel.loadAccounts()
+                Task { await viewModel.fetchChecks() }
+            })
         }
         .onChange(of: showSettings) {
-            if !showSettings { Task { await viewModel.fetchChecks() } }
+            if !showSettings {
+                viewModel.loadAccounts()
+                Task { await viewModel.fetchChecks() }
+            }
         }
         .sheet(isPresented: $viewModel.showCreateSheet) {
-            CreateCheckView { fields in
-                await viewModel.createCheck(fields: fields)
+            CreateCheckView(accounts: viewModel.accounts) { fields, accountId in
+                await viewModel.createCheck(fields: fields, accountId: accountId)
             }
         }
         .alert("Error", isPresented: Binding(
@@ -89,7 +94,8 @@ struct IOSContentView: View {
             Text(viewModel.error ?? "")
         }
         .onAppear {
-            if apiKey.isEmpty {
+            viewModel.loadAccounts()
+            if viewModel.accounts.isEmpty {
                 showSettings = true
             } else {
                 Task { await viewModel.fetchChecks() }
@@ -121,11 +127,13 @@ private struct IOSCheckDetailContainer: View {
                     .padding(.horizontal)
                     .padding(.vertical, 8)
 
-                    CheckDetailView(detail: detail, onDelete: {
+                    CheckDetailView(detail: detail, accountName: detail.accountName, onDelete: {
                         viewModel.showDeleteConfirmation = true
                     }, onUpdate: { field, value in
                         Task { await viewModel.updateField(id: detail.id, fields: [field: value]) }
-                    }, history: viewModel.history, alerts: viewModel.alerts, isLoadingStatistics: viewModel.isLoadingStatistics, onFetchStatistics: {
+                    }, history: viewModel.history, periods: viewModel.periods, hasMorePeriods: viewModel.periodsNextURL != nil, isLoadingMorePeriods: viewModel.isLoadingMorePeriods, onLoadMorePeriods: {
+                        Task { await viewModel.loadMorePeriods(id: detail.id) }
+                    }, isLoadingStatistics: viewModel.isLoadingStatistics, onFetchStatistics: {
                         Task { await viewModel.fetchStatistics(id: detail.id) }
                     }, selectedTab: $selectedDetailTab)
                     .frame(maxHeight: .infinity)

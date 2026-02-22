@@ -9,6 +9,7 @@ extension CreateCheckView {
             }
             .navigationTitle("New Check")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear { initializeAccountSelection() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

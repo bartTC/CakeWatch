@@ -11,6 +11,9 @@ final class UptimeViewModel {
     var showDeleteConfirmation = false
     var showCreateSheet = false
 
+    // Accounts
+    var accounts: [Account] = []
+
     // Batch operations
     var isBatchOperating = false
     var batchProgress = 0.0
@@ -25,24 +28,99 @@ final class UptimeViewModel {
 
     // Statistics
     var history: [UptimeHistoryResult] = []
-    var alerts: [UptimeAlert] = []
+    var periods: [UptimePeriod] = []
+    var periodsNextURL: String?
     var isLoadingStatistics = false
+    var isLoadingMorePeriods = false
 
     private let api = StatusCakeAPI.shared
 
+    // MARK: - Account Management
+
+    func loadAccounts() {
+        if let data = UserDefaults.standard.data(forKey: "accounts"),
+           let decoded = try? JSONDecoder().decode([Account].self, from: data) {
+            accounts = decoded
+        } else if let legacyKey = UserDefaults.standard.string(forKey: "apiKey"), !legacyKey.isEmpty {
+            // Migrate legacy single API key
+            let account = Account(name: "Default", apiKey: legacyKey)
+            accounts = [account]
+            saveAccounts()
+            UserDefaults.standard.removeObject(forKey: "apiKey")
+        }
+    }
+
+    func saveAccounts() {
+        if let data = try? JSONEncoder().encode(accounts) {
+            UserDefaults.standard.set(data, forKey: "accounts")
+        }
+    }
+
+    func accountForCheck(_ checkId: String) -> Account? {
+        if let check = checks.first(where: { $0.id == checkId }) {
+            return accounts.first { $0.id == check.accountId }
+        }
+        if let d = detail, d.id == checkId {
+            return accounts.first { $0.id == d.accountId }
+        }
+        return nil
+    }
+
+    private func apiKeyForCheck(_ checkId: String) -> String? {
+        // Check in overview list
+        if let check = checks.first(where: { $0.id == checkId }) {
+            return accounts.first { $0.id == check.accountId }?.apiKey
+        }
+        // Check in detail
+        if let d = detail, d.id == checkId {
+            return accounts.first { $0.id == d.accountId }?.apiKey
+        }
+        // Check in selected details
+        if let d = selectedDetails.first(where: { $0.id == checkId }) {
+            return accounts.first { $0.id == d.accountId }?.apiKey
+        }
+        return nil
+    }
+
+    // MARK: - Fetching
+
     func fetchChecks() async {
         isLoading = true
-        do {
-            checks = try await api.listChecks()
-        } catch {
-            self.error = error.localizedDescription
+        var allChecks: [UptimeCheckOverview] = []
+        var errors: [String] = []
+
+        for account in accounts {
+            do {
+                var accountChecks = try await api.listChecks(apiKey: account.apiKey)
+                for i in accountChecks.indices {
+                    accountChecks[i].accountId = account.id
+                    accountChecks[i].accountName = account.name
+                }
+                allChecks.append(contentsOf: accountChecks)
+            } catch {
+                errors.append("\(account.name): \(error.localizedDescription)")
+            }
+        }
+
+        checks = allChecks
+        if !errors.isEmpty {
+            self.error = errors.joined(separator: "\n")
         }
         isLoading = false
     }
 
     func fetchDetail(id: String) async {
+        guard let apiKey = apiKeyForCheck(id) else {
+            self.error = "No account found for this check."
+            return
+        }
         do {
-            detail = try await api.getCheck(id: id)
+            var d = try await api.getCheck(id: id, apiKey: apiKey)
+            if let check = checks.first(where: { $0.id == id }) {
+                d.accountId = check.accountId
+                d.accountName = check.accountName
+            }
+            detail = d
         } catch {
             self.error = error.localizedDescription
         }
@@ -58,8 +136,14 @@ final class UptimeViewModel {
 
         for id in ids {
             guard !Task.isCancelled else { break }
-            if let detail = try? await api.getCheck(id: id) {
-                selectedDetails.append(detail)
+            if let apiKey = apiKeyForCheck(id) {
+                if var d = try? await api.getCheck(id: id, apiKey: apiKey) {
+                    if let check = checks.first(where: { $0.id == id }) {
+                        d.accountId = check.accountId
+                        d.accountName = check.accountName
+                    }
+                    selectedDetails.append(d)
+                }
             }
             fetchDetailsCompleted += 1
             fetchDetailsProgress = Double(fetchDetailsCompleted) / Double(fetchDetailsTotal)
@@ -71,21 +155,44 @@ final class UptimeViewModel {
     }
 
     func fetchStatistics(id: String) async {
+        guard let apiKey = apiKeyForCheck(id) else {
+            self.error = "No account found for this check."
+            return
+        }
         isLoadingStatistics = true
-        async let h = api.getHistory(id: id)
-        async let a = api.getAlerts(id: id)
+        async let h = api.getHistory(id: id, apiKey: apiKey)
+        async let p = api.getPeriods(id: id, apiKey: apiKey)
         do {
             history = try await h
-            alerts = try await a
+            let periodsPage = try await p
+            periods = periodsPage.periods
+            periodsNextURL = periodsPage.nextURL
         } catch {
             self.error = error.localizedDescription
         }
         isLoadingStatistics = false
     }
 
-    func createCheck(fields: [String: String]) async {
+    func loadMorePeriods(id: String) async {
+        guard let nextURL = periodsNextURL, let apiKey = apiKeyForCheck(id) else { return }
+        isLoadingMorePeriods = true
         do {
-            let newId = try await api.createCheck(fields: fields)
+            let page = try await api.getMorePeriods(nextURL: nextURL, apiKey: apiKey)
+            periods.append(contentsOf: page.periods)
+            periodsNextURL = page.nextURL
+        } catch {
+            self.error = error.localizedDescription
+        }
+        isLoadingMorePeriods = false
+    }
+
+    func createCheck(fields: [String: String], accountId: String) async {
+        guard let account = accounts.first(where: { $0.id == accountId }) else {
+            self.error = "Account not found."
+            return
+        }
+        do {
+            let newId = try await api.createCheck(fields: fields, apiKey: account.apiKey)
             await fetchChecks()
             selectedChecks = [newId]
         } catch {
@@ -94,8 +201,12 @@ final class UptimeViewModel {
     }
 
     func updateField(id: String, fields: [String: String]) async {
+        guard let apiKey = apiKeyForCheck(id) else {
+            self.error = "No account found for this check."
+            return
+        }
         do {
-            try await api.updateCheck(id: id, fields: fields)
+            try await api.updateCheck(id: id, fields: fields, apiKey: apiKey)
             await fetchDetail(id: id)
             await fetchChecks()
         } catch {
@@ -104,8 +215,18 @@ final class UptimeViewModel {
     }
 
     func batchUpdate(fields: [String: String]) async {
+        // Check if selected checks span multiple accounts
+        let accountIds = Set(selectedChecks.compactMap { id in
+            checks.first(where: { $0.id == id })?.accountId
+        })
+        if accountIds.count > 1 {
+            self.error = "Cannot batch update checks from different accounts. Please select checks from a single account."
+            return
+        }
+
         await runBatchOperation(ids: selectedChecks) { id in
-            try await self.api.updateCheck(id: id, fields: fields)
+            guard let apiKey = self.apiKeyForCheck(id) else { return }
+            try await self.api.updateCheck(id: id, fields: fields, apiKey: apiKey)
         }
         if error == nil {
             await fetchSelectedDetails()
@@ -114,9 +235,19 @@ final class UptimeViewModel {
     }
 
     func deleteSelected() async {
+        // Check if selected checks span multiple accounts
+        let accountIds = Set(selectedChecks.compactMap { id in
+            checks.first(where: { $0.id == id })?.accountId
+        })
+        if accountIds.count > 1 {
+            self.error = "Cannot delete checks from different accounts at once. Please select checks from a single account."
+            return
+        }
+
         let ids = selectedChecks
         await runBatchOperation(ids: ids) { id in
-            try await self.api.deleteCheck(id: id)
+            guard let apiKey = self.apiKeyForCheck(id) else { return }
+            try await self.api.deleteCheck(id: id, apiKey: apiKey)
         }
         selectedChecks.removeAll()
         detail = nil

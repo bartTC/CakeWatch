@@ -8,6 +8,10 @@ struct BatchConfigView: View {
     private let multipleTag = -999
     private let multipleStringTag = "__multiple__"
 
+    private var spansMultipleAccounts: Bool {
+        Set(details.map(\.accountId)).count > 1
+    }
+
     var body: some View {
         Form {
             Section {
@@ -21,6 +25,7 @@ struct BatchConfigView: View {
                     Text("Yes").tag("false")
                     Text("No").tag("true")
                 }
+                .disabled(spansMultipleAccounts)
             }
 
             Section {
@@ -62,11 +67,20 @@ struct BatchConfigView: View {
             } header: {
                 Text("Configuration").font(.headline)
             }
+            .disabled(spansMultipleAccounts)
+
+            if spansMultipleAccounts {
+                Section {
+                    Label("Selected checks belong to different accounts. Batch editing is disabled.", systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                }
+            }
 
             Section {
                 Button("Delete \(details.count) Checks", role: .destructive) {
                     onDelete?()
                 }
+                .disabled(spansMultipleAccounts)
             }
         }
         .formStyle(.grouped)

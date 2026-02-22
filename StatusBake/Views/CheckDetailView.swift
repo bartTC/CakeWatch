@@ -2,10 +2,14 @@ import SwiftUI
 
 struct CheckDetailView: View {
     let detail: UptimeCheckDetail
+    var accountName: String = ""
     var onDelete: (() -> Void)?
     var onUpdate: ((_ field: String, _ value: String) -> Void)?
     var history: [UptimeHistoryResult] = []
-    var alerts: [UptimeAlert] = []
+    var periods: [UptimePeriod] = []
+    var hasMorePeriods = false
+    var isLoadingMorePeriods = false
+    var onLoadMorePeriods: (() -> Void)?
     var isLoadingStatistics = false
     var onFetchStatistics: (() -> Void)?
     @Binding var selectedTab: String
@@ -23,7 +27,7 @@ struct CheckDetailView: View {
     var body: some View {
         Group {
             if selectedTab == "statistics" {
-                StatisticsView(checkId: detail.id, checkName: detail.name, websiteUrl: detail.websiteUrl, history: history, alerts: alerts, isLoading: isLoadingStatistics, uptime: detail.uptime)
+                StatisticsView(checkId: detail.id, checkName: detail.name, websiteUrl: detail.websiteUrl, history: history, periods: periods, hasMorePeriods: hasMorePeriods, isLoadingMorePeriods: isLoadingMorePeriods, onLoadMorePeriods: onLoadMorePeriods, isLoading: isLoadingStatistics, uptime: detail.uptime)
             } else {
                 Form {
                     generalSection
@@ -48,6 +52,9 @@ struct CheckDetailView: View {
     private var generalSection: some View {
         Section {
             nameField
+            if !accountName.isEmpty {
+                LabeledContent("Account", value: accountName)
+            }
             LabeledContent("Status") {
                 HStack {
                     Circle()
