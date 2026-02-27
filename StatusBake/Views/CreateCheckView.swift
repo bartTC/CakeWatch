@@ -58,12 +58,10 @@ struct CreateCheckView: View {
 
     @ViewBuilder
     var formContent: some View {
-        if accounts.count > 1 {
-            Section("Account") {
-                Picker("Account", selection: $selectedAccountId) {
-                    ForEach(accounts) { account in
-                        Text(account.name).tag(account.id)
-                    }
+        Section("Account") {
+            Picker("Account", selection: $selectedAccountId) {
+                ForEach(accounts) { account in
+                    Text(account.name).tag(account.id)
                 }
             }
         }

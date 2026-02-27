@@ -70,7 +70,7 @@ struct MacContentView: View {
                         Label("Refresh", systemImage: "arrow.clockwise")
                     }
                     .help("Refresh checks")
-                }
+}
                 ToolbarItem {
                     Button(action: { showSettings = true }) {
                         Label("Settings", systemImage: "gear")
@@ -150,6 +150,28 @@ struct MacContentView: View {
             }
         }
         .disabled(viewModel.isBatchOperating)
+        .focusedValue(\.refreshAction) {
+            Task { await viewModel.fetchChecks() }
+        }
+        .focusedValue(\.newCheckAction) {
+            viewModel.showCreateSheet = true
+        }
+        .focusedValue(\.deleteCheckAction) {
+            if !viewModel.selectedChecks.isEmpty {
+                viewModel.showDeleteConfirmation = true
+            }
+        }
+        .focusedValue(\.pauseCheckAction) {
+            guard let id = viewModel.selectedChecks.first,
+                  let check = viewModel.checks.first(where: { $0.id == id }) else { return }
+            let newPaused = !check.paused
+            Task { await viewModel.updateField(id: id, fields: ["paused": newPaused ? "true" : "false"]) }
+        }
+        .focusedValue(\.viewOnStatusCakeAction) {
+            guard let id = viewModel.selectedChecks.first else { return }
+            NSWorkspace.shared.open(URL(string: "https://app.statuscake.com/UptimeStatus.php?tid=\(id)")!)
+        }
+        .focusedValue(\.hasSelection, !viewModel.selectedChecks.isEmpty)
     }
 
     @ViewBuilder
