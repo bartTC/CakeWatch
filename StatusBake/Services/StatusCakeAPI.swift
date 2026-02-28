@@ -1,10 +1,13 @@
 import Foundation
 
 enum APIError: LocalizedError {
+    case invalidURL(String)
     case requestFailed(statusCode: Int, message: String)
 
     var errorDescription: String? {
         switch self {
+        case .invalidURL(let url):
+            return "Invalid URL: \(url)"
         case .requestFailed(let code, let message):
             return "Request failed (\(code)): \(message)"
         }
@@ -23,8 +26,11 @@ final class StatusCakeAPI {
     }
     private var lastRequestTime: Date = .distantPast
 
-    private func request(path: String, method: String = "GET", apiKey: String) -> URLRequest {
-        var req = URLRequest(url: URL(string: baseURL + path)!)
+    private func request(path: String, method: String = "GET", apiKey: String) throws -> URLRequest {
+        guard let url = URL(string: baseURL + path) else {
+            throw APIError.invalidURL(baseURL + path)
+        }
+        var req = URLRequest(url: url)
         req.httpMethod = method
         req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         return req
@@ -93,7 +99,7 @@ final class StatusCakeAPI {
     }
 
     func updateCheck(id: String, fields: [String: String], apiKey: String) async throws {
-        var req = request(path: "/uptime/\(id)", method: "PUT", apiKey: apiKey)
+        var req = try request(path: "/uptime/\(id)", method: "PUT", apiKey: apiKey)
         req.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         var components = URLComponents()
         components.queryItems = fields.map { URLQueryItem(name: $0.key, value: $0.value) }
@@ -159,7 +165,7 @@ final class StatusCakeAPI {
     }
 
     func createCheck(fields: [String: String], apiKey: String) async throws -> String {
-        var req = request(path: "/uptime", method: "POST", apiKey: apiKey)
+        var req = try request(path: "/uptime", method: "POST", apiKey: apiKey)
         req.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         var components = URLComponents()
         components.queryItems = fields.map { URLQueryItem(name: $0.key, value: $0.value) }

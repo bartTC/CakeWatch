@@ -43,7 +43,7 @@ struct CreateCheckView: View {
     @State var isCreating = false
 
     var isValid: Bool {
-        !name.isEmpty && !websiteUrl.isEmpty
+        !name.isEmpty && !websiteUrl.isEmpty && !selectedAccountId.isEmpty
     }
 
     var showContentMatching: Bool {
@@ -173,7 +173,7 @@ struct CreateCheckView: View {
         if !dnsServer.isEmpty { fields["dns_server"] = dnsServer }
         if !dnsIps.isEmpty { fields["dns_ips"] = dnsIps }
 
-        let accountId = selectedAccountId.isEmpty ? accounts.first?.id ?? "" : selectedAccountId
+        let accountId = selectedAccountId
         Task {
             await onCreate?(fields, accountId)
             dismiss()

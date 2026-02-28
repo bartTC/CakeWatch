@@ -15,16 +15,13 @@ struct SettingsView: View {
     var onAccountsChanged: (() -> Void)? = nil
 
     func loadAccounts() {
-        if let data = UserDefaults.standard.data(forKey: "accounts"),
-           let decoded = try? JSONDecoder().decode([Account].self, from: data) {
-            accounts = decoded
+        if let loaded = KeychainHelper.loadAccounts() {
+            accounts = loaded
         }
     }
 
     func saveAccounts() {
-        if let data = try? JSONEncoder().encode(accounts) {
-            UserDefaults.standard.set(data, forKey: "accounts")
-        }
+        KeychainHelper.saveAccounts(accounts)
         onAccountsChanged?()
     }
 

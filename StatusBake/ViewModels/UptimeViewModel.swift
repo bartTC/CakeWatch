@@ -38,22 +38,13 @@ final class UptimeViewModel {
     // MARK: - Account Management
 
     func loadAccounts() {
-        if let data = UserDefaults.standard.data(forKey: "accounts"),
-           let decoded = try? JSONDecoder().decode([Account].self, from: data) {
-            accounts = decoded
-        } else if let legacyKey = UserDefaults.standard.string(forKey: "apiKey"), !legacyKey.isEmpty {
-            // Migrate legacy single API key
-            let account = Account(name: "Default", apiKey: legacyKey)
-            accounts = [account]
-            saveAccounts()
-            UserDefaults.standard.removeObject(forKey: "apiKey")
+        if let loaded = KeychainHelper.loadAccounts() {
+            accounts = loaded
         }
     }
 
     func saveAccounts() {
-        if let data = try? JSONEncoder().encode(accounts) {
-            UserDefaults.standard.set(data, forKey: "accounts")
-        }
+        KeychainHelper.saveAccounts(accounts)
     }
 
     func accountForCheck(_ checkId: String) -> Account? {
@@ -134,15 +125,21 @@ final class UptimeViewModel {
         fetchDetailsProgress = 0
         isFetchingDetails = true
 
+        var errors: [String] = []
+
         for id in ids {
             guard !Task.isCancelled else { break }
             if let apiKey = apiKeyForCheck(id) {
-                if var d = try? await api.getCheck(id: id, apiKey: apiKey) {
+                do {
+                    var d = try await api.getCheck(id: id, apiKey: apiKey)
                     if let check = checks.first(where: { $0.id == id }) {
                         d.accountId = check.accountId
                         d.accountName = check.accountName
                     }
                     selectedDetails.append(d)
+                } catch {
+                    let name = checks.first(where: { $0.id == id })?.name ?? id
+                    errors.append("\(name): \(error.localizedDescription)")
                 }
             }
             fetchDetailsCompleted += 1
@@ -150,6 +147,9 @@ final class UptimeViewModel {
         }
 
         if !Task.isCancelled {
+            if !errors.isEmpty {
+                self.error = errors.joined(separator: "\n")
+            }
             isFetchingDetails = false
         }
     }
