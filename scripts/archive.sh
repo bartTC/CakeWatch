@@ -54,6 +54,7 @@ mkdir -p "$ver_dir"
 xcodebuild archive \
     -project "$PROJECT" \
     -scheme "$SCHEME" \
+    -destination 'generic/platform=macOS' \
     -archivePath "$archive_path" \
     DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
     CODE_SIGN_STYLE=Manual \
