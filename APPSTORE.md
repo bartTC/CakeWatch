@@ -42,7 +42,7 @@ Smart Rate Limiting
 Configurable request throttling respects your StatusCake plan limits. Automatic retry with backoff when rate limits are hit.
 
 Secure by Design
-API keys are stored in the system Keychain, never in plain text. The app uses only HTTPS and requires no special permissions beyond network access.
+API keys are stored locally on your device. The app uses only HTTPS and requires no special permissions beyond network access.
 
 No third-party dependencies. No telemetry. No tracking. Just a fast, focused tool for keeping an eye on your infrastructure.
 

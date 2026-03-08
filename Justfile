@@ -91,6 +91,10 @@ build *flags:
         open "$app"
     fi
 
+# Run tests
+test:
+    xcodebuild test -scheme {{scheme}} -destination 'platform=macOS' -only-testing CakeWatchTests
+
 # Clean build artifacts
 clean:
     rm -rf "{{build_dir}}"
