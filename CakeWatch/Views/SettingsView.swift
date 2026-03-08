@@ -14,6 +14,8 @@ struct SettingsView: View {
 
     var onAccountsChanged: (() -> Void)? = nil
 
+    static let accountsChangedNotification = Notification.Name("accountsChanged")
+
     func loadAccounts() {
         if let loaded = KeychainHelper.loadAccounts() {
             accounts = loaded
@@ -23,6 +25,7 @@ struct SettingsView: View {
     func saveAccounts() {
         KeychainHelper.saveAccounts(accounts)
         onAccountsChanged?()
+        NotificationCenter.default.post(name: Self.accountsChangedNotification, object: nil)
     }
 
     func startAdd() {
