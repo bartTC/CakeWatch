@@ -37,6 +37,8 @@ trap cleanup EXIT
 echo "Building version: $ver"
 
 marketing_version="${ver#v}"
+# Strip git describe suffix (e.g. 1.0.0-3-gabcdef → 1.0.0)
+marketing_version=$(echo "$marketing_version" | sed 's/-.*//' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || echo "$marketing_version")
 build_number=$(git rev-list --count HEAD)
 
 echo "Setting MARKETING_VERSION=$marketing_version, BUILD=$build_number"
