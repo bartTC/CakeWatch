@@ -96,6 +96,10 @@ struct MacContentView: View {
                 Task { await viewModel.fetchChecks() }
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: SettingsView.accountsChangedNotification)) { _ in
+            viewModel.loadAccounts()
+            Task { await viewModel.fetchChecks() }
+        }
         .sheet(isPresented: $viewModel.showCreateSheet) {
             CreateCheckView(accounts: viewModel.accounts) { fields, accountId in
                 await viewModel.createCheck(fields: fields, accountId: accountId)
