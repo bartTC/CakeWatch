@@ -43,10 +43,6 @@ build_number=$(git rev-list --count HEAD)
 
 echo "Setting MARKETING_VERSION=$marketing_version, BUILD=$build_number"
 
-project_file="$PROJECT/project.pbxproj"
-sed -i '' "s/MARKETING_VERSION = [^;]*;/MARKETING_VERSION = $marketing_version;/g" "$project_file"
-sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $build_number;/g" "$project_file"
-
 ver_dir="$BUILD_DIR/$ver"
 archive_path="$ver_dir/$APP_NAME.xcarchive"
 export_path="$ver_dir/export"
@@ -60,7 +56,9 @@ xcodebuild archive \
     -archivePath "$archive_path" \
     DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
     CODE_SIGN_STYLE=Manual \
-    CODE_SIGN_IDENTITY="Developer ID Application"
+    CODE_SIGN_IDENTITY="Developer ID Application" \
+    MARKETING_VERSION="$marketing_version" \
+    CURRENT_PROJECT_VERSION="$build_number"
 
 cat > "$ver_dir/ExportOptions.plist" << EOF
 <?xml version="1.0" encoding="UTF-8"?>

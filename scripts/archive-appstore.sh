@@ -2,53 +2,19 @@
 set -e
 
 # Build and archive for Mac App Store distribution
-# Usage: ./scripts/archive-appstore.sh [tag]
+# Usage: ./scripts/archive-appstore.sh
 
 source "$(dirname "$0")/config.sh"
 
-tag="${1:-}"
-original_ref=""
-
-if [[ -n "$tag" ]]; then
-    ver="$tag"
-
-    if ! git rev-parse "$tag" >/dev/null 2>&1; then
-        echo "Error: Tag '$tag' not found"
-        echo "Available tags:"
-        git tag -l | sort -V | tail -10
-        exit 1
-    fi
-
-    original_ref=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse HEAD)
-    echo "Checking out tag: $tag"
-    git checkout "$tag" --quiet
-else
-    ver=$(git describe --tags --always 2>/dev/null || echo "dev")
-fi
-
-cleanup() {
-    if [[ -n "$original_ref" ]]; then
-        echo "Returning to: $original_ref"
-        git checkout "$original_ref" --quiet
-    fi
-}
-trap cleanup EXIT
-
-echo "Building for App Store: $ver"
-
-marketing_version="${ver#v}"
-# Strip git describe suffix (e.g. 1.0.0-3-gabcdef → 1.0.0)
-marketing_version=$(echo "$marketing_version" | sed 's/-.*//' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || echo "$marketing_version")
-build_number=$(git rev-list --count HEAD)
-
-echo "Setting MARKETING_VERSION=$marketing_version, BUILD=$build_number"
-
 project_file="$PROJECT/project.pbxproj"
-sed -i '' "s/MARKETING_VERSION = [^;]*;/MARKETING_VERSION = $marketing_version;/g" "$project_file"
-sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $build_number;/g" "$project_file"
 
-ver_dir="$BUILD_DIR/$ver-appstore"
-archive_path="$ver_dir/$APP_NAME.xcarchive"
+# Read version and build number from pbxproj
+marketing_version=$(grep -m1 'MARKETING_VERSION' "$project_file" | sed 's/.*= //;s/;.*//')
+build_number=$(grep -m1 'CURRENT_PROJECT_VERSION' "$project_file" | sed 's/.*= //;s/;.*//')
+
+echo "Building for App Store: v${marketing_version} (${build_number})"
+
+ver_dir="$BUILD_DIR/v${marketing_version}-appstore"
 
 mkdir -p "$ver_dir"
 
@@ -62,9 +28,7 @@ xcodebuild archive \
     -destination 'generic/platform=macOS' \
     -archivePath "$archive_path_macos" \
     DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-    CODE_SIGN_STYLE=Automatic \
-    MARKETING_VERSION="$marketing_version" \
-    CURRENT_PROJECT_VERSION="$build_number"
+    CODE_SIGN_STYLE=Automatic
 
 echo "Archiving for iOS..."
 xcodebuild archive \
@@ -73,11 +37,7 @@ xcodebuild archive \
     -destination 'generic/platform=iOS' \
     -archivePath "$archive_path_ios" \
     DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-    CODE_SIGN_STYLE=Automatic \
-    MARKETING_VERSION="$marketing_version" \
-    CURRENT_PROJECT_VERSION="$build_number"
-
-echo "$ver-appstore" > "$BUILD_DIR/.current_version_appstore"
+    CODE_SIGN_STYLE=Automatic
 
 echo ""
 echo "✓ App Store archives complete:"
