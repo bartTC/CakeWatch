@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-StatusBake is a native SwiftUI app for managing StatusCake uptime monitoring checks, targeting both macOS and iOS from a single codebase. No third-party dependencies — pure Swift/SwiftUI/Foundation.
+CakeWatch is a native SwiftUI app for managing StatusCake uptime monitoring checks, targeting both macOS and iOS from a single codebase. No third-party dependencies — pure Swift/SwiftUI/Foundation.
 
 ## Build Commands
 
@@ -42,7 +42,7 @@ Views following this pattern: `ContentView`, `CheckDetailView`, `CreateCheckView
 
 ### macOS Menu Bar
 
-`StatusBakeApp.swift` defines `AppCommands` using `FocusedValues` to wire keyboard shortcuts (Cmd+N, Cmd+R, Cmd+Delete) to view actions.
+`CakeWatchApp.swift` defines `AppCommands` using `FocusedValues` to wire keyboard shortcuts (Cmd+N, Cmd+R, Cmd+Delete) to view actions.
 
 ## Data Flow
 
@@ -61,8 +61,8 @@ Views following this pattern: `ContentView`, `CheckDetailView`, `CreateCheckView
 
 ## Key Directories
 
-- `StatusBake/Models/` — data models (`UptimeCheck`, `Account`, `UptimeHistory`, `Constants`)
-- `StatusBake/ViewModels/` — `UptimeViewModel` (single view model for entire app)
-- `StatusBake/Services/` — `StatusCakeAPI` REST client
-- `StatusBake/Views/` — all SwiftUI views (platform-split pattern)
+- `CakeWatch/Models/` — data models (`UptimeCheck`, `Account`, `UptimeHistory`, `Constants`)
+- `CakeWatch/ViewModels/` — `UptimeViewModel` (single view model for entire app)
+- `CakeWatch/Services/` — `StatusCakeAPI` REST client
+- `CakeWatch/Views/` — all SwiftUI views (platform-split pattern)
 - `scripts/` — release/archive shell scripts

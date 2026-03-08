@@ -1,8 +1,8 @@
-# StatusBake
+# CakeWatch
 
 A native macOS app for managing and monitoring your [StatusCake](https://www.statuscake.com/) uptime checks.
 
-![StatusBake Screenshot](./screenshot.png)
+![CakeWatch Screenshot](./screenshot.png)
 
 ## Features
 
@@ -26,7 +26,7 @@ A native macOS app for managing and monitoring your [StatusCake](https://www.sta
    cp Local.xcconfig.example Local.xcconfig
    ```
    Edit `Local.xcconfig` and replace `YOUR_TEAM_ID` with your actual team ID.
-3. Open `StatusBake.xcodeproj` in Xcode
+3. Open `CakeWatch.xcodeproj` in Xcode
 4. Build and run
 
 On first launch, you'll be prompted to enter your StatusCake API key in Settings.

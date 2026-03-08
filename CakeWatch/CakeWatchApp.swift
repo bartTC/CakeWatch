@@ -94,7 +94,7 @@ extension FocusedValues {
 #endif
 
 @main
-struct StatusBakeApp: App {
+struct CakeWatchApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()

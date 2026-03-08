@@ -2,7 +2,7 @@
 
 ## App Name
 
-StatusBake
+CakeWatch
 
 ## Subtitle (30 characters max)
 
@@ -14,7 +14,7 @@ Monitor all your websites and servers from your Mac or iPhone. Multi-account sup
 
 ## Description (4000 characters max)
 
-StatusBake gives you a fast, native way to manage your StatusCake uptime monitors from macOS and iOS. No browser tabs, no slow dashboards — just your checks, right on your device.
+CakeWatch gives you a fast, native way to manage your StatusCake uptime monitors from macOS and iOS. No browser tabs, no slow dashboards — just your checks, right on your device.
 
 Connect one or more StatusCake accounts and see all your monitors in a single view. Quickly spot which sites are up, down, or paused. Drill into any check for full details, response time charts, and a downtime timeline.
 
@@ -36,7 +36,7 @@ Create & Edit Checks
 Set up new HTTP, HEAD, TCP, DNS, PING, SMTP, or SSH checks with full configuration: check rate, timeouts, content matching, SSL alerts, custom headers, authentication, and more. Edit any field inline without leaving the app.
 
 Platform-Native Design
-StatusBake is built entirely with SwiftUI — no web views, no Electron, no compromises. On macOS you get keyboard shortcuts (Cmd+N, Cmd+R, Cmd+Delete), sortable table columns, and inline editing. On iOS you get pull-to-refresh, navigation-based editing, and a layout designed for touch.
+CakeWatch is built entirely with SwiftUI — no web views, no Electron, no compromises. On macOS you get keyboard shortcuts (Cmd+N, Cmd+R, Cmd+Delete), sortable table columns, and inline editing. On iOS you get pull-to-refresh, navigation-based editing, and a layout designed for touch.
 
 Smart Rate Limiting
 Configurable request throttling respects your StatusCake plan limits. Automatic retry with backoff when rate limits are hit.
@@ -61,7 +61,7 @@ Copyright 2025 Elephant House. All rights reserved.
 
 ## Support URL
 
-https://github.com/bartTC/StatusBake/issues
+https://github.com/bartTC/CakeWatch/issues
 
 ## Privacy Policy URL
 

@@ -42,7 +42,7 @@ struct IOSContentView: View {
             .listStyle(.plain)
             .refreshable { await viewModel.fetchChecks() }
             .searchable(text: $filterText, prompt: "Filter checks")
-            .navigationTitle("StatusBake")
+            .navigationTitle("CakeWatch")
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(for: String.self) { checkId in
                 IOSCheckDetailContainer(checkId: checkId, viewModel: viewModel, selectedDetailTab: $selectedDetailTab)

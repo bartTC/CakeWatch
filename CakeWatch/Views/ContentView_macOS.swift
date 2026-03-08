@@ -57,7 +57,7 @@ struct MacContentView: View {
             .navigationSplitViewColumnWidth(min: 300, ideal: 400)
             .searchable(text: $filterText, placement: .sidebar, prompt: "Filter checks")
             .onChange(of: filterText) { viewModel.selectedChecks.removeAll() }
-            .navigationTitle("StatusBake")
+            .navigationTitle("CakeWatch")
             .toolbar {
                 ToolbarItem {
                     Button(action: { viewModel.showCreateSheet = true }) {

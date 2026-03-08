@@ -1,13 +1,13 @@
 //
-//  StatusBakeUITestsLaunchTests.swift
-//  StatusBakeUITests
+//  CakeWatchUITestsLaunchTests.swift
+//  CakeWatchUITests
 //
 //  Created by Martin Mahner on 13.02.26.
 //
 
 import XCTest
 
-final class StatusBakeUITestsLaunchTests: XCTestCase {
+final class CakeWatchUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

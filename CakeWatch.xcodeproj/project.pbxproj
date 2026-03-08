@@ -12,38 +12,38 @@
 			containerPortal = 5BDAF2E52F3F1D3E000D24EC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 5BDAF2EC2F3F1D3E000D24EC;
-			remoteInfo = StatusBake;
+			remoteInfo = CakeWatch;
 		};
 		5BDAF3072F3F1D3E000D24EC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5BDAF2E52F3F1D3E000D24EC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 5BDAF2EC2F3F1D3E000D24EC;
-			remoteInfo = StatusBake;
+			remoteInfo = CakeWatch;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		5BDAF2ED2F3F1D3E000D24EC /* StatusBake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StatusBake.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		5BDAF2FC2F3F1D3E000D24EC /* StatusBakeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StatusBakeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5BDAF3062F3F1D3E000D24EC /* StatusBakeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StatusBakeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5BDAF2ED2F3F1D3E000D24EC /* CakeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CakeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5BDAF2FC2F3F1D3E000D24EC /* CakeWatchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CakeWatchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5BDAF3062F3F1D3E000D24EC /* CakeWatchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CakeWatchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5BDAF3FF2F3F2000000D24EC /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		5BDAF2EF2F3F1D3E000D24EC /* StatusBake */ = {
+		5BDAF2EF2F3F1D3E000D24EC /* CakeWatch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = StatusBake;
+			path = CakeWatch;
 			sourceTree = "<group>";
 		};
-		5BDAF2FF2F3F1D3E000D24EC /* StatusBakeTests */ = {
+		5BDAF2FF2F3F1D3E000D24EC /* CakeWatchTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = StatusBakeTests;
+			path = CakeWatchTests;
 			sourceTree = "<group>";
 		};
-		5BDAF3092F3F1D3E000D24EC /* StatusBakeUITests */ = {
+		5BDAF3092F3F1D3E000D24EC /* CakeWatchUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = StatusBakeUITests;
+			path = CakeWatchUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -77,9 +77,9 @@
 			isa = PBXGroup;
 			children = (
 				5BDAF3FF2F3F2000000D24EC /* Local.xcconfig */,
-				5BDAF2EF2F3F1D3E000D24EC /* StatusBake */,
-				5BDAF2FF2F3F1D3E000D24EC /* StatusBakeTests */,
-				5BDAF3092F3F1D3E000D24EC /* StatusBakeUITests */,
+				5BDAF2EF2F3F1D3E000D24EC /* CakeWatch */,
+				5BDAF2FF2F3F1D3E000D24EC /* CakeWatchTests */,
+				5BDAF3092F3F1D3E000D24EC /* CakeWatchUITests */,
 				5BDAF2EE2F3F1D3E000D24EC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -87,9 +87,9 @@
 		5BDAF2EE2F3F1D3E000D24EC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5BDAF2ED2F3F1D3E000D24EC /* StatusBake.app */,
-				5BDAF2FC2F3F1D3E000D24EC /* StatusBakeTests.xctest */,
-				5BDAF3062F3F1D3E000D24EC /* StatusBakeUITests.xctest */,
+				5BDAF2ED2F3F1D3E000D24EC /* CakeWatch.app */,
+				5BDAF2FC2F3F1D3E000D24EC /* CakeWatchTests.xctest */,
+				5BDAF3062F3F1D3E000D24EC /* CakeWatchUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -97,9 +97,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		5BDAF2EC2F3F1D3E000D24EC /* StatusBake */ = {
+		5BDAF2EC2F3F1D3E000D24EC /* CakeWatch */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5BDAF3102F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "StatusBake" */;
+			buildConfigurationList = 5BDAF3102F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "CakeWatch" */;
 			buildPhases = (
 				5BDAF2E92F3F1D3E000D24EC /* Sources */,
 				5BDAF2EA2F3F1D3E000D24EC /* Frameworks */,
@@ -110,18 +110,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				5BDAF2EF2F3F1D3E000D24EC /* StatusBake */,
+				5BDAF2EF2F3F1D3E000D24EC /* CakeWatch */,
 			);
-			name = StatusBake;
+			name = CakeWatch;
 			packageProductDependencies = (
 			);
-			productName = StatusBake;
-			productReference = 5BDAF2ED2F3F1D3E000D24EC /* StatusBake.app */;
+			productName = CakeWatch;
+			productReference = 5BDAF2ED2F3F1D3E000D24EC /* CakeWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
-		5BDAF2FB2F3F1D3E000D24EC /* StatusBakeTests */ = {
+		5BDAF2FB2F3F1D3E000D24EC /* CakeWatchTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5BDAF3132F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "StatusBakeTests" */;
+			buildConfigurationList = 5BDAF3132F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "CakeWatchTests" */;
 			buildPhases = (
 				5BDAF2F82F3F1D3E000D24EC /* Sources */,
 				5BDAF2F92F3F1D3E000D24EC /* Frameworks */,
@@ -133,18 +133,18 @@
 				5BDAF2FE2F3F1D3E000D24EC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				5BDAF2FF2F3F1D3E000D24EC /* StatusBakeTests */,
+				5BDAF2FF2F3F1D3E000D24EC /* CakeWatchTests */,
 			);
-			name = StatusBakeTests;
+			name = CakeWatchTests;
 			packageProductDependencies = (
 			);
-			productName = StatusBakeTests;
-			productReference = 5BDAF2FC2F3F1D3E000D24EC /* StatusBakeTests.xctest */;
+			productName = CakeWatchTests;
+			productReference = 5BDAF2FC2F3F1D3E000D24EC /* CakeWatchTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		5BDAF3052F3F1D3E000D24EC /* StatusBakeUITests */ = {
+		5BDAF3052F3F1D3E000D24EC /* CakeWatchUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5BDAF3162F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "StatusBakeUITests" */;
+			buildConfigurationList = 5BDAF3162F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "CakeWatchUITests" */;
 			buildPhases = (
 				5BDAF3022F3F1D3E000D24EC /* Sources */,
 				5BDAF3032F3F1D3E000D24EC /* Frameworks */,
@@ -156,13 +156,13 @@
 				5BDAF3082F3F1D3E000D24EC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				5BDAF3092F3F1D3E000D24EC /* StatusBakeUITests */,
+				5BDAF3092F3F1D3E000D24EC /* CakeWatchUITests */,
 			);
-			name = StatusBakeUITests;
+			name = CakeWatchUITests;
 			packageProductDependencies = (
 			);
-			productName = StatusBakeUITests;
-			productReference = 5BDAF3062F3F1D3E000D24EC /* StatusBakeUITests.xctest */;
+			productName = CakeWatchUITests;
+			productReference = 5BDAF3062F3F1D3E000D24EC /* CakeWatchUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -188,7 +188,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 5BDAF2E82F3F1D3E000D24EC /* Build configuration list for PBXProject "StatusBake" */;
+			buildConfigurationList = 5BDAF2E82F3F1D3E000D24EC /* Build configuration list for PBXProject "CakeWatch" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -202,9 +202,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				5BDAF2EC2F3F1D3E000D24EC /* StatusBake */,
-				5BDAF2FB2F3F1D3E000D24EC /* StatusBakeTests */,
-				5BDAF3052F3F1D3E000D24EC /* StatusBakeUITests */,
+				5BDAF2EC2F3F1D3E000D24EC /* CakeWatch */,
+				5BDAF2FB2F3F1D3E000D24EC /* CakeWatchTests */,
+				5BDAF3052F3F1D3E000D24EC /* CakeWatchUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -260,12 +260,12 @@
 /* Begin PBXTargetDependency section */
 		5BDAF2FE2F3F1D3E000D24EC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 5BDAF2EC2F3F1D3E000D24EC /* StatusBake */;
+			target = 5BDAF2EC2F3F1D3E000D24EC /* CakeWatch */;
 			targetProxy = 5BDAF2FD2F3F1D3E000D24EC /* PBXContainerItemProxy */;
 		};
 		5BDAF3082F3F1D3E000D24EC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 5BDAF2EC2F3F1D3E000D24EC /* StatusBake */;
+			target = 5BDAF2EC2F3F1D3E000D24EC /* CakeWatch */;
 			targetProxy = 5BDAF3072F3F1D3E000D24EC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -396,7 +396,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = StatusBake/StatusBake.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CakeWatch/CakeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 16;
@@ -417,7 +417,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.9.0;
-				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.StatusBake;
+				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.CakeWatch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -437,7 +437,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = StatusBake/StatusBake.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CakeWatch/CakeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 16;
@@ -458,7 +458,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.9.0;
-				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.StatusBake;
+				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.CakeWatch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -482,14 +482,14 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 0.9.0;
-				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.StatusBakeTests;
+				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.CakeWatchTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StatusBake.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/StatusBake";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CakeWatch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CakeWatch";
 			};
 			name = Debug;
 		};
@@ -502,14 +502,14 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 0.9.0;
-				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.StatusBakeTests;
+				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.CakeWatchTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StatusBake.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/StatusBake";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CakeWatch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CakeWatch";
 			};
 			name = Release;
 		};
@@ -520,14 +520,14 @@
 				CURRENT_PROJECT_VERSION = 16;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 0.9.0;
-				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.StatusBakeUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.CakeWatchUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = StatusBake;
+				TEST_TARGET_NAME = CakeWatch;
 			};
 			name = Debug;
 		};
@@ -538,21 +538,21 @@
 				CURRENT_PROJECT_VERSION = 16;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 0.9.0;
-				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.StatusBakeUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = elephanthouse.CakeWatchUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = StatusBake;
+				TEST_TARGET_NAME = CakeWatch;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		5BDAF2E82F3F1D3E000D24EC /* Build configuration list for PBXProject "StatusBake" */ = {
+		5BDAF2E82F3F1D3E000D24EC /* Build configuration list for PBXProject "CakeWatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5BDAF30E2F3F1D3E000D24EC /* Debug */,
@@ -561,7 +561,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5BDAF3102F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "StatusBake" */ = {
+		5BDAF3102F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "CakeWatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5BDAF3112F3F1D3E000D24EC /* Debug */,
@@ -570,7 +570,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5BDAF3132F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "StatusBakeTests" */ = {
+		5BDAF3132F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "CakeWatchTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5BDAF3142F3F1D3E000D24EC /* Debug */,
@@ -579,7 +579,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5BDAF3162F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "StatusBakeUITests" */ = {
+		5BDAF3162F3F1D3E000D24EC /* Build configuration list for PBXNativeTarget "CakeWatchUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5BDAF3172F3F1D3E000D24EC /* Debug */,

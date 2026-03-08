@@ -1,9 +1,9 @@
-# StatusBake - Build & Release Commands
+# CakeWatch - Build & Release Commands
 # Usage: just <command>
 
 set dotenv-load
 
-scheme := "StatusBake"
+scheme := "CakeWatch"
 build_dir := "build"
 
 default:
@@ -46,7 +46,7 @@ build *flags:
         echo "Installing on device..."
         app_path=$(xcodebuild -scheme {{scheme}} -destination "generic/platform=iOS" -showBuildSettings 2>/dev/null | grep -m1 ' BUILT_PRODUCTS_DIR' | awk '{print $3}')/{{scheme}}.app
         xcrun devicectl device install app --device "$device_id" "$app_path"
-        xcrun devicectl device process launch --device "$device_id" elephanthouse.StatusBake
+        xcrun devicectl device process launch --device "$device_id" elephanthouse.CakeWatch
     elif [[ "{{flags}}" == *"--ios"* ]]; then
         # Find a booted simulator or boot the first available iPhone
         booted=$(xcrun simctl list devices booted -j | python3 -c "
@@ -75,7 +75,7 @@ build *flags:
         # Install and launch on simulator
         app_path=$(xcodebuild -scheme {{scheme}} -sdk iphonesimulator -destination "id=$booted" -showBuildSettings 2>/dev/null | grep -m1 ' BUILT_PRODUCTS_DIR' | awk '{print $3}')/{{scheme}}.app
         xcrun simctl install "$booted" "$app_path"
-        xcrun simctl launch "$booted" elephanthouse.StatusBake
+        xcrun simctl launch "$booted" elephanthouse.CakeWatch
     else
         args="-scheme {{scheme}} -destination 'platform=macOS'"
         if [[ "{{flags}}" == *"--dev"* ]]; then
@@ -98,7 +98,7 @@ clean:
 
 # Open project in Xcode
 xcode:
-    open StatusBake.xcodeproj
+    open CakeWatch.xcodeproj
 
 # =============================================================================
 # Release (requires APPLE_ID, APPLE_TEAM_ID, APPLE_APP_PASSWORD in .env)
