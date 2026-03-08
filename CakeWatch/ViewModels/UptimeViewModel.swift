@@ -35,9 +35,17 @@ final class UptimeViewModel {
 
     private let api = StatusCakeAPI.shared
 
+    private var isDemoMode: Bool {
+        CommandLine.arguments.contains("--demo")
+    }
+
     // MARK: - Account Management
 
     func loadAccounts() {
+        if isDemoMode {
+            accounts = [DemoData.account]
+            return
+        }
         if let loaded = KeychainHelper.loadAccounts() {
             accounts = loaded
         }
@@ -77,6 +85,11 @@ final class UptimeViewModel {
 
     func fetchChecks() async {
         isLoading = true
+        if isDemoMode {
+            checks = DemoData.checks
+            isLoading = false
+            return
+        }
         var allChecks: [UptimeCheckOverview] = []
         var errors: [String] = []
 
@@ -101,6 +114,10 @@ final class UptimeViewModel {
     }
 
     func fetchDetail(id: String) async {
+        if isDemoMode {
+            detail = DemoData.detail(for: id)
+            return
+        }
         guard let apiKey = apiKeyForCheck(id) else {
             self.error = "No account found for this check."
             return
@@ -155,6 +172,14 @@ final class UptimeViewModel {
     }
 
     func fetchStatistics(id: String) async {
+        if isDemoMode {
+            isLoadingStatistics = true
+            history = DemoData.history(for: id)
+            periods = DemoData.periods(for: id)
+            periodsNextURL = nil
+            isLoadingStatistics = false
+            return
+        }
         guard let apiKey = apiKeyForCheck(id) else {
             self.error = "No account found for this check."
             return

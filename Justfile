@@ -75,7 +75,11 @@ build *flags:
         # Install and launch on simulator
         app_path=$(xcodebuild -scheme {{scheme}} -sdk iphonesimulator -destination "id=$booted" -showBuildSettings 2>/dev/null | grep -m1 ' BUILT_PRODUCTS_DIR' | awk '{print $3}')/{{scheme}}.app
         xcrun simctl install "$booted" "$app_path"
-        xcrun simctl launch "$booted" elephanthouse.CakeWatchApp
+        if [[ "{{flags}}" == *"--demo"* ]]; then
+            xcrun simctl launch "$booted" elephanthouse.CakeWatchApp --demo
+        else
+            xcrun simctl launch "$booted" elephanthouse.CakeWatchApp
+        fi
     else
         args="-scheme {{scheme}} -destination 'platform=macOS'"
         if [[ "{{flags}}" == *"--dev"* ]]; then
@@ -88,7 +92,11 @@ build *flags:
             app=$(xcodebuild -scheme {{scheme}} -showBuildSettings 2>/dev/null | grep -m1 ' BUILT_PRODUCTS_DIR' | awk '{print $3}')/{{scheme}}.app
         fi
         pkill -x "{{scheme}}" 2>/dev/null && sleep 0.5
-        open "$app"
+        if [[ "{{flags}}" == *"--demo"* ]]; then
+            open "$app" --args --demo
+        else
+            open "$app"
+        fi
     fi
 
 # Run tests
