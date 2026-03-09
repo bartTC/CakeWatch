@@ -2,15 +2,15 @@
 
 ## App Name
 
-CakeWatch
+CakeWatch: Uptime Monitor
 
 ## Subtitle (30 characters max)
 
-Uptime Monitoring for StatusCake
+StatusCake Uptime Monitor
 
 ## Promotional Text (170 characters max)
 
-Monitor all your websites and servers from your Mac or iPhone. Multi-account support, batch operations, and downtime analytics — all in one native app.
+Monitor websites and servers natively from your Mac or iPhone. Multi-account support, batch edits, and downtime analytics — fast, secure, and built for StatusCake.
 
 ## Description (4000 characters max)
 
@@ -20,35 +20,23 @@ Connect one or more StatusCake accounts and see all your monitors in a single vi
 
 KEY FEATURES
 
-Multi-Account Support
-Connect multiple StatusCake accounts and manage them all from one place. Each account's checks are clearly labeled so you always know which team or project they belong to.
-
-Batch Operations
-Select multiple checks and update or delete them in one go. A progress indicator keeps you informed as each operation completes.
-
-Response Time Analytics
-View response time history as a line chart with key statistics: average, min, max, and P95 response times — all at a glance.
-
-Downtime Timeline
-See downtime periods grouped by day with duration bars, exact timestamps, and mean time to recovery (MTTR). Load more history with pagination support.
-
-Create & Edit Checks
-Set up new HTTP, HEAD, TCP, DNS, PING, SMTP, or SSH checks with full configuration: check rate, timeouts, content matching, SSL alerts, custom headers, authentication, and more. Edit any field inline without leaving the app.
-
-Platform-Native Design
-CakeWatch is built entirely with SwiftUI — no web views, no Electron, no compromises. On macOS you get keyboard shortcuts (Cmd+N, Cmd+R, Cmd+Delete), sortable table columns, and inline editing. On iOS you get pull-to-refresh, navigation-based editing, and a layout designed for touch.
-
-Smart Rate Limiting
-Configurable request throttling respects your StatusCake plan limits. Automatic retry with backoff when rate limits are hit.
-
-Secure by Design
-API keys are stored locally on your device. The app uses only HTTPS and requires no special permissions beyond network access.
+• Multi-Account Support: Connect multiple StatusCake accounts and manage them all from one place. Each account's checks are clearly labeled so you always know which team or project they belong to.
+• Batch Operations: Select multiple checks and update or delete them in one go with a real-time progress indicator.
+• Response Time Analytics: View response time history as a line chart with key statistics: average, min, max, and P95 response times.
+• Downtime Timeline: See downtime periods grouped by day with duration bars, exact timestamps, and mean time to recovery (MTTR).
+• Create & Edit Checks: Set up new HTTP, HEAD, TCP, DNS, PING, SMTP, or SSH checks with full configuration. Edit any field inline without leaving the app.
+• Platform-Native Design: Built entirely with SwiftUI. On macOS, enjoy keyboard shortcuts (Cmd+N, Cmd+R, Cmd+Delete), sortable columns, and inline editing. On iOS, experience pull-to-refresh and a layout designed for touch.
+• Smart Rate Limiting: Configurable request throttling respects your StatusCake plan limits with automatic retries.
+• Secure by Design: API keys are stored securely on your local keychain. The app uses only HTTPS and requires no special permissions beyond network access.
 
 No third-party dependencies. No telemetry. No tracking. Just a fast, focused tool for keeping an eye on your infrastructure.
 
+DISCLAIMER
+CakeWatch is a third-party application and is not affiliated with, maintained by, or endorsed by StatusCake.
+
 ## Keywords (100 characters max)
 
-uptime,monitoring,statuscake,server,website,downtime,status,ping,http,check
+uptime,monitor,statuscake,server,website,downtime,status,ping,http,check,dns,tracker,alert,api
 
 ## Categories
 
