@@ -17,28 +17,53 @@ version:
 # Development
 # =============================================================================
 
-# Build and run the app (--ios for simulator, --device for physical iPhone, default macOS; --dev for faster incremental builds)
+# Build and run the app (--iphone/--ipad for physical device, --ios for simulator, --macos for Mac; --dev for faster builds, --demo for fake data)
 build *flags:
     #!/usr/bin/env bash
     set -e
-    if [[ "{{flags}}" == *"--device"* ]]; then
-        # Build and run on a connected physical iPhone
+    # Interactive menu when no target specified
+    has_target=false
+    for f in {{flags}}; do
+        case "$f" in --iphone|--ipad|--ios|--macos) has_target=true;; esac
+    done
+    if [[ "$has_target" == "false" ]]; then
+        target=$(gum choose "macOS" "iOS Simulator" "iPhone (physical)" "iPad (physical)" --header "Select target:")
+        case "$target" in
+            "macOS") flags="--macos" ;;
+            "iOS Simulator") flags="--ios" ;;
+            "iPhone (physical)") flags="--iphone" ;;
+            "iPad (physical)") flags="--ipad" ;;
+            *) exit 1 ;;
+        esac
+        if gum confirm "Demo mode?" --default=No; then
+            flags="$flags --demo"
+        fi
+        exec just build $flags
+    fi
+    if [[ "{{flags}}" == *"--iphone"* ]] || [[ "{{flags}}" == *"--ipad"* ]]; then
+        # Build and run on a connected physical device
+        if [[ "{{flags}}" == *"--ipad"* ]]; then
+            device_filter="iPad"
+        else
+            device_filter="iPhone"
+        fi
         tmpjson=$(mktemp /tmp/devices.XXXXXX.json)
         xcrun devicectl list devices --json-output "$tmpjson" 2>/dev/null
         device_id=$(python3 -c "
     import json,sys
+    filt='$device_filter'
     data=json.load(open('$tmpjson'))
     for d in data.get('result',{}).get('devices',[]):
         conn=d.get('connectionProperties',{})
-        if conn.get('transportType','')=='wired' and 'iPhone' in d.get('deviceProperties',{}).get('name',''):
+        if conn.get('transportType','')=='wired' and filt in d.get('deviceProperties',{}).get('name',''):
             print(d['identifier']); sys.exit()
     for d in data.get('result',{}).get('devices',[]):
-        if 'iPhone' in d.get('deviceProperties',{}).get('name','') and d.get('visibilityClass','')=='default':
+        if filt in d.get('deviceProperties',{}).get('name','') and d.get('visibilityClass','')=='default':
             print(d['identifier']); sys.exit()
     " 2>/dev/null)
         rm -f "$tmpjson"
         if [[ -z "$device_id" ]]; then
-            echo "No connected iPhone found. Connect via USB and trust the device."
+            echo "No connected $device_filter found. Connect via USB and trust the device."
             exit 1
         fi
         echo "Building for device $device_id..."
@@ -46,7 +71,11 @@ build *flags:
         echo "Installing on device..."
         app_path=$(xcodebuild -scheme {{scheme}} -destination "generic/platform=iOS" -showBuildSettings 2>/dev/null | grep -m1 ' BUILT_PRODUCTS_DIR' | awk '{print $3}')/{{scheme}}.app
         xcrun devicectl device install app --device "$device_id" "$app_path"
-        xcrun devicectl device process launch --device "$device_id" elephanthouse.CakeWatchApp
+        if [[ "{{flags}}" == *"--demo"* ]]; then
+            xcrun devicectl device process launch --device "$device_id" elephanthouse.CakeWatchApp -- --demo
+        else
+            xcrun devicectl device process launch --device "$device_id" elephanthouse.CakeWatchApp
+        fi
     elif [[ "{{flags}}" == *"--ios"* ]]; then
         # Find a booted simulator or boot the first available iPhone
         booted=$(xcrun simctl list devices booted -j | python3 -c "

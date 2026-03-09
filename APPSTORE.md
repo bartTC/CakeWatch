@@ -100,3 +100,20 @@ Initial release.
 ### Mac
 
 - 1280 x 800 minimum, 2560 x 1600 recommended
+
+---
+
+## Review Notes for App Store Tester
+
+CakeWatch requires a StatusCake API key to function. To test the app:
+
+1. Sign up for a free account at https://www.statuscake.com (no credit card required)
+2. Go to Account → API Keys and create a new key
+3. In the app, go to Settings and add an account with your API key
+4. The free plan includes up to 10 uptime checks
+
+Alternatively, use this pre-configured test account:
+
+- **API Key**: `[TO BE ADDED]`
+
+This key provides read-only access to a set of demo monitors across HTTP, DNS, TCP, and PING check types.
