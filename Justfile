@@ -30,7 +30,14 @@ build *flags:
         target=$(gum choose "macOS" "iOS Simulator" "iPhone (physical)" "iPad (physical)" --header "Select target:")
         case "$target" in
             "macOS") flags="--macos" ;;
-            "iOS Simulator") flags="--ios" ;;
+            "iOS Simulator")
+                sim_device=$(gum choose "iPhone" "iPad" --header "Simulator device:")
+                if [[ "$sim_device" == "iPad" ]]; then
+                    flags="--ios --sim-ipad"
+                else
+                    flags="--ios"
+                fi
+                ;;
             "iPhone (physical)") flags="--iphone" ;;
             "iPad (physical)") flags="--ipad" ;;
             *) exit 1 ;;
@@ -77,22 +84,29 @@ build *flags:
             xcrun devicectl device process launch --device "$device_id" elephanthouse.CakeWatchApp
         fi
     elif [[ "{{flags}}" == *"--ios"* ]]; then
-        # Find a booted simulator or boot the first available iPhone
+        # Find a booted simulator or boot the first available one
+        if [[ "{{flags}}" == *"--sim-ipad"* ]]; then
+            sim_filter="iPad"
+        else
+            sim_filter="iPhone"
+        fi
         booted=$(xcrun simctl list devices booted -j | python3 -c "
     import json,sys
+    filt='$sim_filter'
     data=json.load(sys.stdin)
     for runtime,devs in data.get('devices',{}).items():
         for d in devs:
-            if d['state']=='Booted' and 'iPhone' in d['name']:
+            if d['state']=='Booted' and filt in d['name']:
                 print(d['udid']); sys.exit()
     " 2>/dev/null || true)
         if [[ -z "$booted" ]]; then
             udid=$(xcrun simctl list devices available -j | python3 -c "
     import json,sys
+    filt='$sim_filter'
     data=json.load(sys.stdin)
     for runtime,devs in sorted(data.get('devices',{}).items(), reverse=True):
         for d in devs:
-            if d['isAvailable'] and 'iPhone' in d['name']:
+            if d['isAvailable'] and filt in d['name']:
                 print(d['udid']); sys.exit()
     ")
             echo "Booting simulator $udid..."
@@ -100,6 +114,11 @@ build *flags:
             booted="$udid"
         fi
         open -a Simulator
+        if [[ "{{flags}}" == *"--demo"* ]]; then
+            xcrun simctl status_bar "$booted" override \
+                --time "9:41" --batteryState charged --batteryLevel 100 \
+                --wifiBars 3 --cellularBars 4 --operatorName "" --dataNetwork wifi
+        fi
         xcodebuild build -scheme {{scheme}} -sdk iphonesimulator -destination "id=$booted"
         # Install and launch on simulator
         app_path=$(xcodebuild -scheme {{scheme}} -sdk iphonesimulator -destination "id=$booted" -showBuildSettings 2>/dev/null | grep -m1 ' BUILT_PRODUCTS_DIR' | awk '{print $3}')/{{scheme}}.app
